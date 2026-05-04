@@ -1,12 +1,11 @@
-// src/pages/PublicReceipt.jsx
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import PayCard from '../components/PayCard';
+import ReceiptCard from '../components/ReceiptCard';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001';
 
-export default function PublicReceipt() {
+export default function OriginalReceiptView() {
   const { receiptId } = useParams();
   const [receipt, setReceipt] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -48,8 +47,18 @@ export default function PublicReceipt() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center">
-      <PayCard receipt={receipt} />
+    <div className="min-h-screen bg-slate-50 py-8 flex flex-col items-center">
+      <div className="mb-4">
+        <button 
+          onClick={() => window.print()} 
+          className="bg-blue-600 text-white px-6 py-2 rounded font-bold shadow-md print:hidden"
+        >
+          Print Receipt
+        </button>
+      </div>
+      <div className="bg-white shadow-xl overflow-x-auto w-full max-w-[210mm]">
+        <ReceiptCard receipt={receipt} qrDataURL={receipt.qrCodeDataURL} />
+      </div>
     </div>
   );
 }

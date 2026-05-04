@@ -8,6 +8,7 @@ import AdminLogin     from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import CreateReceipt  from './pages/CreateReceipt';
 import PublicReceipt  from './pages/PublicReceipt';
+import OriginalReceiptView from './pages/OriginalReceiptView';
 
 export default function App() {
   return (
@@ -17,6 +18,7 @@ export default function App() {
         <Routes>
           {/* Public */}
           <Route path="/receipt/:receiptId" element={<PublicReceipt />} />
+          <Route path="/view-receipt/:receiptId" element={<OriginalReceiptView />} />
 
           {/* Admin Auth */}
           <Route path="/admin/login" element={<AdminLogin />} />

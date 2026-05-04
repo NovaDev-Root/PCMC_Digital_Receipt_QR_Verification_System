@@ -65,7 +65,7 @@ export default function AdminDashboard() {
               clonedDoc.documentElement.removeAttribute('style');
               clonedDoc.body.removeAttribute('style');
               clonedDoc.body.style.backgroundColor = 'white';
-              
+
               // 2. Scrub modern color functions from all style tags
               // html2canvas crashes on oklch, oklab, color-mix, and color()
               const styles = clonedDoc.getElementsByTagName('style');
@@ -222,7 +222,7 @@ export default function AdminDashboard() {
                           Print
                         </button>
                         <Link
-                          to={`/receipt/${receipt.receiptId}`}
+                          to={`/view-receipt/${receipt.receiptId}`}
                           target="_blank"
                           className="px-4 py-2 bg-white text-blue-700 hover:bg-blue-50 transition-colors border border-blue-400 text-xs font-semibold"
                         >
