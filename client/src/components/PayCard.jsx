@@ -93,9 +93,10 @@ const PayCard = ({ receipt }) => {
           </div>
         </div>
 
+
         {/* Pay Now Button */}
-        <div className="flex justify-center mt-10 mb-2">
-          <button className="bg-[#789ce6] hover:bg-[#5e84d4] text-black font-black py-2 px-12 border-[1.2px] border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] text-[13px] transition-all active:shadow-none active:translate-x-[1px] active:translate-y-[1px]">
+        <div className="flex justify-center mt-8 mb-2">
+          <button className="bg-[#789ce6] hover:bg-[#5e84d4] text-black font-black py-2.5 px-16 border-[1.5px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-[15px] transition-all active:shadow-none active:translate-x-[2px] active:translate-y-[2px]">
             Pay Now
           </button>
         </div>
