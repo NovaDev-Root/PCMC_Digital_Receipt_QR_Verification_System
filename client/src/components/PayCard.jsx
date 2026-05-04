@@ -8,9 +8,9 @@ const PayCard = ({ receipt }) => {
   React.useEffect(() => {
     const handleResize = () => {
       const width = window.innerWidth;
-      // Full screen occupy logic: Scale to fit with uniform side space (16px on each side)
-      if (width < 640) {
-        setScale((width - 32) / 620);
+      // Full screen occupy logic: Scale to fit with minimal side space
+      if (width < 560) {
+        setScale((width - 8) / 540); // 4px margin on each side for maximum size
       } else {
         setScale(1);
       }
@@ -22,12 +22,12 @@ const PayCard = ({ receipt }) => {
 
   return (
     <div className="w-full flex items-start justify-center bg-white min-h-screen font-sans overflow-x-hidden">
-      <div 
-        className="bg-white border-[1.5px] border-black p-4 sm:p-5 shadow-sm origin-top transition-transform duration-300"
+      <div
+        className="bg-white border-[1.5px] border-black p-4 shadow-sm origin-top transition-transform duration-300"
         style={{
-          width: '620px',
+          width: '540px',
           transform: `scale(${scale})`,
-          marginTop: '16px',
+          marginTop: '12px',
           marginBottom: '20px'
         }}
       >
@@ -40,7 +40,7 @@ const PayCard = ({ receipt }) => {
             <h2 className="text-[#1a3a8f] font-black text-[18px] sm:text-xl devanagari leading-tight">पिंपरी चिंचवड महानगरपालिका</h2>
             <h3 className="text-[#1a3a8f] font-black text-[13px] sm:text-[15px] devanagari leading-tight">झोपडपट्टी निर्मूलन व पुनर्वसन विभाग</h3>
             <p className="text-[#1a3a8f] font-black text-[12px] sm:text-[14px] devanagari leading-tight">एकत्रित सेवा शुल्क बील</p>
-            
+
             {/* GO Numbers - Centered in right area */}
             <div className="mt-1 text-[#1a3a8f] font-black text-[9px] sm:text-[11px] devanagari leading-tight">
               महाराष्ट्र शासन निर्णय क्र. गवसु/१२२०/प्र.क्र-२०४(१) झोपसु(१), दिनांक ११ जुलै २००१<br />
