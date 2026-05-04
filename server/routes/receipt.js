@@ -14,7 +14,7 @@ async function verifyToken(req, res, next) {
   const idToken = authHeader.split('Bearer ')[1];
   try {
     const decoded = await getAuth().verifyIdToken(idToken);
-    
+
     // Strict Admin Authorization
     if (process.env.ADMIN_EMAIL && decoded.email !== process.env.ADMIN_EMAIL) {
       console.warn(`Unauthorized access attempt by: ${decoded.email}`);
@@ -52,32 +52,32 @@ router.post('/create', verifyToken, async (req, res) => {
       return res.status(400).json({ error: 'holderName and billDate are required' });
     }
 
-    const receiptId  = uuidv4();
+    const receiptId = uuidv4();
     const totalAmount = (Number(pendingAmount) || 0) + (Number(currentDemand) || 0);
 
     const receiptData = {
       receiptId,
-      billNumber:     billNumber || `PCMC/${Date.now()}`,
+      billNumber: billNumber || `PCMC/${Date.now()}`,
       billDate,
-      validTill:      validTill || '',
+      validTill: validTill || '',
       holderName,
-      address:        address || '',
-      area:           area || '',
-      landType:       landType || 'Khajagi',
-      department:     department || '-',
-      jhopadiNumber:  jhopadiNumber || '',
+      address: address || '',
+      area: area || '',
+      landType: landType || 'Khajagi',
+      department: department || '-',
+      jhopadiNumber: jhopadiNumber || '',
       areaSquareFeet: areaSquareFeet || '',
-      demandFrom:     demandFrom || '',
-      pendingAmount:  Number(pendingAmount) || 0,
-      currentDemand:  Number(currentDemand) || 0,
+      demandFrom: demandFrom || '',
+      pendingAmount: Number(pendingAmount) || 0,
+      currentDemand: Number(currentDemand) || 0,
       totalAmount,
-      status:         'pending',
-      createdAt:      new Date().toISOString(),
+      status: 'pending',
+      createdAt: new Date().toISOString(),
     };
 
     // Generate QR code - dynamically detect the website URL
     const origin = req.get('origin') || (req.get('referer') ? new URL(req.get('referer')).origin : null);
-    const clientUrl = origin || process.env.CLIENT_URL || 'http://localhost:5175';
+    const clientUrl = origin || process.env.CLIENT_URL;
     const receiptUrl = `${clientUrl}/receipt/${receiptId}`;
 
     const qrCodeDataURL = await QRCode.toDataURL(receiptUrl, {
@@ -149,7 +149,7 @@ router.get('/all', verifyToken, async (req, res) => {
 router.patch('/:receiptId/status', verifyToken, async (req, res) => {
   try {
     const { receiptId } = req.params;
-    const { status }    = req.body;
+    const { status } = req.body;
 
     if (!['pending', 'paid'].includes(status)) {
       return res.status(400).json({ error: 'Invalid status. Use pending or paid.' });
