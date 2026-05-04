@@ -90,6 +90,14 @@ body {
   }
 }
 
+/* DECISIVE FIX FOR HTML2CANVAS OKLCH ERROR */
+.receipt-card, .receipt-card * {
+  --tw-ring-color: transparent !important;
+  --tw-shadow-color: transparent !important;
+  --tw-border-color: transparent !important;
+  --tw-outline-color: transparent !important;
+}
+
 /* Status badges */
 .badge-paid {
   background-color: #f0fdf4;

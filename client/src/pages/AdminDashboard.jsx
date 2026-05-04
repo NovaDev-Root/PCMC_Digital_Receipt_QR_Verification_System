@@ -11,10 +11,10 @@ export default function AdminDashboard() {
   const [receipts, setReceipts] = useState([]);
   const [loading, setLoading] = useState(true);
   const { user: currentUser } = useAuth();
-  
+
   const [printingReceipt, setPrintingReceipt] = useState(null);
   const hiddenReceiptRef = useRef(null);
-  
+
   const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001';
 
   useEffect(() => {
@@ -31,13 +31,13 @@ export default function AdminDashboard() {
         setLoading(false);
       }
     }
-    
+
     if (currentUser) fetchReceipts();
   }, [currentUser, apiUrl]);
 
   const handleDelete = async (receiptId) => {
     if (!window.confirm('Are you sure you want to delete this receipt?')) return;
-    
+
     try {
       const token = await currentUser.getIdToken();
       await axios.delete(`${apiUrl}/api/receipt/${receiptId}`, {
@@ -54,13 +54,41 @@ export default function AdminDashboard() {
     if (printingReceipt && hiddenReceiptRef.current) {
       setTimeout(async () => {
         try {
-          const canvas = await html2canvas(hiddenReceiptRef.current, { scale: 2 });
+          const canvas = await html2canvas(hiddenReceiptRef.current, {
+            scale: 2,
+            useCORS: true,
+            logging: false,
+            backgroundColor: '#ffffff',
+            windowWidth: 794,
+            onclone: (clonedDoc) => {
+              // 1. Clear all inherited styles/variables from root elements
+              clonedDoc.documentElement.removeAttribute('style');
+              clonedDoc.body.removeAttribute('style');
+              clonedDoc.body.style.backgroundColor = 'white';
+              
+              // 2. Scrub modern color functions from all style tags
+              // html2canvas crashes on oklch, oklab, color-mix, and color()
+              const styles = clonedDoc.getElementsByTagName('style');
+              for (let s of styles) {
+                s.innerHTML = s.innerHTML.replace(/(oklch|oklab|color-mix|color)\([^)]+\)/g, 'currentColor');
+              }
+
+              // 3. Scrub all inline styles on all elements
+              const allElements = clonedDoc.getElementsByTagName('*');
+              for (let el of allElements) {
+                const style = el.getAttribute('style');
+                if (style && (style.includes('oklch') || style.includes('oklab') || style.includes('color-mix') || style.includes('color('))) {
+                  el.setAttribute('style', style.replace(/(oklch|oklab|color-mix|color)\([^)]+\)/g, 'currentColor'));
+                }
+              }
+            }
+          });
           const imgData = canvas.toDataURL('image/png');
           const pdf = new jsPDF('p', 'mm', 'a4');
           const pdfWidth = pdf.internal.pageSize.getWidth();
           const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-          pdf.addImage(imgData, 'PNG', 0, 10, pdfWidth, pdfHeight);
-          pdf.save(`PCMC_Bill_${printingReceipt.billNumber}.pdf`);
+          pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+          pdf.save(`PCMC_Official_Bill_${printingReceipt.billNumber}.pdf`);
         } catch (err) {
           console.error('Error generating PDF:', err);
         } finally {
@@ -71,15 +99,15 @@ export default function AdminDashboard() {
   }, [printingReceipt]);
 
   const [search, setSearch] = useState('');
-  const filteredReceipts = receipts.filter(r => 
-    r.holderName?.toLowerCase().includes(search.toLowerCase()) || 
+  const filteredReceipts = receipts.filter(r =>
+    r.holderName?.toLowerCase().includes(search.toLowerCase()) ||
     r.billNumber?.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 pt-36 pb-20 px-4 flex flex-col items-center">
+    <div className="min-h-screen bg-slate-50 pt-16 pb-20 px-4 flex flex-col items-center">
       <div className="w-full max-w-7xl animate-fade-in flex flex-col items-center">
-        
+
         {/* Centered Dashboard Header */}
         <div className="text-center mb-10">
           <div className="inline-block bg-[#232f3e] text-white px-4 py-2 mb-4 border border-[#232f3e]">
@@ -101,16 +129,16 @@ export default function AdminDashboard() {
         <div className="bg-white border border-slate-300 w-full">
           <div className="bg-[#232f3e] px-8 py-6 flex flex-col md:flex-row md:items-center justify-between gap-8 border-b border-slate-300">
             <div className="relative flex-1 max-w-md">
-              <input 
-                type="text" 
-                placeholder="Search Name or Bill Number..." 
+              <input
+                type="text"
+                placeholder="Search Name or Bill Number..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="w-full bg-white border border-slate-300 py-3 px-4 text-black placeholder:text-slate-500 font-bold devanagari focus:outline-none focus:border-[#ff9900]"
               />
             </div>
-            <Link 
-              to="/admin/create" 
+            <Link
+              to="/admin/create"
               className="bg-[#ffd814] hover:bg-[#f7ca00] text-black border border-[#fcd200] font-semibold px-8 py-3 text-sm flex items-center justify-center transition-colors"
             >
               Create New Bill
@@ -146,53 +174,68 @@ export default function AdminDashboard() {
                         <div className="text-sm font-black text-slate-900 devanagari leading-tight">{receipt.holderName}</div>
                         <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">{receipt.billDate}</div>
                       </td>
-                      <td className="px-10 py-6 whitespace-nowrap">
-                        <span className="text-[10px] font-mono font-black text-slate-500 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
-                          {receipt.billNumber}
-                        </span>
+                      <td className="px-10 py-6 whitespace-nowrap text-center">
+                        <div className="flex flex-col items-center">
+                          <span className="text-[10px] font-mono font-black text-slate-500 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100 mb-2">
+                            {receipt.billNumber}
+                          </span>
+                          {receipt.qrCodeDataURL ? (
+                            <img src={receipt.qrCodeDataURL} alt="QR" className="w-10 h-10 border border-slate-200" title="QR Ready" />
+                          ) : (
+                            <div className="w-10 h-10 bg-slate-100 border border-dashed border-slate-300 flex items-center justify-center text-[8px] text-slate-400">NO QR</div>
+                          )}
+                        </div>
                       </td>
                       <td className="px-10 py-6 whitespace-nowrap">
                         <div className="text-sm font-black text-slate-900">₹{receipt.totalAmount?.toLocaleString('en-IN')}</div>
                       </td>
                       <td className="px-10 py-6 whitespace-nowrap">
-                        <span className={`px-3 py-1 inline-flex text-[9px] font-bold border ${
-                          receipt.status === 'paid' 
-                            ? 'bg-green-50 text-green-700 border-green-300' 
-                            : 'bg-amber-50 text-amber-700 border-amber-300'
-                        }`}>
+                        <span className={`px-3 py-1 inline-flex text-[9px] font-bold border ${receipt.status === 'paid'
+                          ? 'bg-green-50 text-green-700 border-green-300'
+                          : 'bg-amber-50 text-amber-700 border-amber-300'
+                          }`}>
                           {receipt.status === 'paid' ? 'Paid' : 'Pending'}
                         </span>
                       </td>
                       <td className="px-10 py-6 whitespace-nowrap text-right space-x-3">
-                        <button 
+                        <button
                           onClick={() => {
+                            if (!receipt.qrCodeDataURL) {
+                              alert('QR Code not generated for this receipt.');
+                              return;
+                            }
                             const link = document.createElement('a');
                             link.href = receipt.qrCodeDataURL;
                             link.download = `PCMC_QR_${receipt.billNumber}.png`;
+                            document.body.appendChild(link);
                             link.click();
+                            document.body.removeChild(link);
                           }}
                           className="px-4 py-2 bg-[#ff9900] text-black hover:bg-[#e38800] transition-colors border border-slate-600 text-xs font-bold"
                         >
                           QR
                         </button>
-                        <button 
+                        <button
                           onClick={() => setPrintingReceipt(receipt)}
                           className="px-4 py-2 bg-white text-slate-700 hover:bg-slate-50 transition-colors border border-slate-400 text-xs font-semibold"
                         >
                           Print
                         </button>
-                        <Link 
-                          to={`/receipt/${receipt.receiptId}`} 
-                          target="_blank" 
+                        <Link
+                          to={`/receipt/${receipt.receiptId}`}
+                          target="_blank"
                           className="px-4 py-2 bg-white text-blue-700 hover:bg-blue-50 transition-colors border border-blue-400 text-xs font-semibold"
                         >
                           View
                         </Link>
-                        <button 
+                        <button
                           onClick={() => handleDelete(receipt.receiptId)}
-                          className="px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 transition-colors border border-red-300 text-xs font-bold"
+                          className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 transition-colors rounded-lg group"
+                          title="Delete Receipt"
                         >
-                          Delete
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
                         </button>
                       </td>
                     </tr>
@@ -206,9 +249,9 @@ export default function AdminDashboard() {
 
       {/* Hidden Receipt for PDF Generation */}
       {printingReceipt && (
-        <div className="fixed top-0 left-[-9999px]">
-          <div className="w-[800px] p-8 bg-white">
-            <ReceiptCard receipt={printingReceipt} ref={hiddenReceiptRef} />
+        <div className="fixed top-0 left-[-9999px]" style={{ backgroundColor: '#ffffff' }}>
+          <div className="w-[800px] p-8" style={{ backgroundColor: '#ffffff' }}>
+            <ReceiptCard receipt={printingReceipt} qrDataURL={printingReceipt.qrCodeDataURL} ref={hiddenReceiptRef} />
           </div>
         </div>
       )}

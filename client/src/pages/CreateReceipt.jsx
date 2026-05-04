@@ -14,12 +14,7 @@ const formatDate = (d) => {
   return `${day}/${m}/${y}`;
 };
 
-const generateBillNumber = () => {
-  const now = new Date();
-  const yr = `${now.getFullYear()}${(now.getFullYear() % 100) + 1}`;
-  const seq = String(Math.floor(Math.random() * 90000) + 10000);
-  return `3/21/${yr}/${seq}`;
-};
+// Bill number is now manual
 
 function FormField({ label, marathi, children, centered }) {
   return (
@@ -38,7 +33,7 @@ export default function CreateReceipt() {
   const navigate       = useNavigate();
 
   const [form, setForm] = useState({
-    billNumber:     generateBillNumber(),
+    billNumber:     '',
     billDate:       today(),
     validTill:      '',
     holderName:     '',
@@ -163,17 +158,14 @@ export default function CreateReceipt() {
           
           {/* Card: Bill Details */}
           <div className="bg-white border border-slate-300 w-full">
-            <div className="bg-[#f3f3f3] border-b border-slate-300 px-8 py-4 flex items-center justify-between">
-              <div>
-                <h2 className="text-black font-bold text-base devanagari uppercase leading-none">बील माहिती (Bill Basic Info)</h2>
-              </div>
-              <div className="px-3 py-1 bg-white border border-slate-300">
-                <p className="text-slate-500 text-[8px] font-bold uppercase tracking-widest">Auto Generated ID</p>
-                <p className="text-black font-mono text-sm font-bold">{form.billNumber}</p>
-              </div>
+            <div className="bg-[#f3f3f3] border-b border-slate-300 px-8 py-4">
+              <h2 className="text-black font-bold text-base devanagari uppercase leading-none">बील माहिती (Bill Basic Info)</h2>
             </div>
             
-            <div className="p-10 grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="p-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              <FormField marathi="बील क्रमांक" label="Bill Number">
+                <input name="billNumber" value={form.billNumber} onChange={handleChange} required placeholder="उदा. 3/21/..." className="form-input font-bold" />
+              </FormField>
               <FormField marathi="बील दिनांक" label="Date">
                 <input name="billDate" type="date" value={form.billDate} onChange={handleChange} required className="form-input font-bold" />
               </FormField>

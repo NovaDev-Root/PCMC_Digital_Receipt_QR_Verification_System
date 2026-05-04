@@ -76,7 +76,7 @@ router.post('/create', verifyToken, async (req, res) => {
     };
 
     // Generate QR code
-    const clientUrl  = process.env.CLIENT_URL || 'http://localhost:5173';
+    const clientUrl  = process.env.CLIENT_URL || req.get('origin') || 'http://localhost:5173';
     const receiptUrl = `${clientUrl}/receipt/${receiptId}`;
 
     const qrCodeDataURL = await QRCode.toDataURL(receiptUrl, {
@@ -128,7 +128,14 @@ router.get('/all', verifyToken, async (req, res) => {
       .get();
 
     const receipts = [];
-    snapshot.forEach((doc) => receipts.push(doc.data()));
+    snapshot.forEach((doc) => {
+      const data = doc.data();
+      // Ensure receiptId is present even if not in document data
+      receipts.push({
+        ...data,
+        receiptId: data.receiptId || doc.id
+      });
+    });
 
     res.json({ success: true, receipts });
   } catch (err) {
