@@ -3,7 +3,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
-import html2canvas from 'html2canvas';
+import { toPng } from 'html-to-image';
 import { jsPDF } from 'jspdf';
 import ReceiptCard from '../components/ReceiptCard';
 
@@ -54,39 +54,23 @@ export default function AdminDashboard() {
     if (printingReceipt && hiddenReceiptRef.current) {
       setTimeout(async () => {
         try {
-          const canvas = await html2canvas(hiddenReceiptRef.current, {
-            scale: 2,
-            useCORS: true,
-            logging: false,
+          // Use html-to-image to bypass html2canvas parsing errors for oklch and modern CSS functions
+          const imgData = await toPng(hiddenReceiptRef.current, {
+            pixelRatio: 2,
             backgroundColor: '#ffffff',
-            windowWidth: 794,
-            onclone: (clonedDoc) => {
-              // 1. Clear all inherited styles/variables from root elements
-              clonedDoc.documentElement.removeAttribute('style');
-              clonedDoc.body.removeAttribute('style');
-              clonedDoc.body.style.backgroundColor = 'white';
-
-              // 2. Scrub modern color functions from all style tags
-              // html2canvas crashes on oklch, oklab, color-mix, and color()
-              const styles = clonedDoc.getElementsByTagName('style');
-              for (let s of styles) {
-                s.innerHTML = s.innerHTML.replace(/(oklch|oklab|color-mix|color)\([^)]+\)/g, 'currentColor');
-              }
-
-              // 3. Scrub all inline styles on all elements
-              const allElements = clonedDoc.getElementsByTagName('*');
-              for (let el of allElements) {
-                const style = el.getAttribute('style');
-                if (style && (style.includes('oklch') || style.includes('oklab') || style.includes('color-mix') || style.includes('color('))) {
-                  el.setAttribute('style', style.replace(/(oklch|oklab|color-mix|color)\([^)]+\)/g, 'currentColor'));
-                }
-              }
+            style: {
+              transform: 'none'
             }
           });
-          const imgData = canvas.toDataURL('image/png');
+          
+          const element = hiddenReceiptRef.current;
+          const width = element.offsetWidth;
+          const height = element.offsetHeight;
+          
           const pdf = new jsPDF('p', 'mm', 'a4');
           const pdfWidth = pdf.internal.pageSize.getWidth();
-          const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+          const pdfHeight = (height * pdfWidth) / width;
+          
           pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
           pdf.save(`PCMC_Official_Bill_${printingReceipt.billNumber}.pdf`);
         } catch (err) {
