@@ -75,8 +75,9 @@ router.post('/create', verifyToken, async (req, res) => {
       createdAt:      new Date().toISOString(),
     };
 
-    // Generate QR code
-    const clientUrl  = process.env.CLIENT_URL || req.get('origin') || 'http://localhost:5173';
+    // Generate QR code - dynamically detect the website URL
+    const origin = req.get('origin') || (req.get('referer') ? new URL(req.get('referer')).origin : null);
+    const clientUrl = origin || process.env.CLIENT_URL || 'http://localhost:5175';
     const receiptUrl = `${clientUrl}/receipt/${receiptId}`;
 
     const qrCodeDataURL = await QRCode.toDataURL(receiptUrl, {
