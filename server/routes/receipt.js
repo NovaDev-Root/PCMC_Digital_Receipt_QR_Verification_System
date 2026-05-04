@@ -77,7 +77,10 @@ router.post('/create', verifyToken, async (req, res) => {
 
     // Generate QR code
     // Force production URL so localhost is never embedded in the QR Code
-    const clientUrl = process.env.CLIENT_URL || 'https://pcmc-digital-receipt-qr-verificatio.vercel.app';
+    let clientUrl = process.env.CLIENT_URL || 'https://pcmc-digital-receipt-qr-verificatio.vercel.app';
+    if (clientUrl.includes('localhost')) {
+      clientUrl = 'https://pcmc-digital-receipt-qr-verificatio.vercel.app';
+    }
     const receiptUrl = `${clientUrl}/receipt/${receiptId}`;
 
     const qrCodeDataURL = await QRCode.toDataURL(receiptUrl, {
