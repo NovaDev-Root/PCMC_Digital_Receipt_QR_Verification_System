@@ -150,6 +150,17 @@ export default function AdminDashboard() {
                       </td>
                       <td className="px-10 py-6 whitespace-nowrap text-right space-x-3">
                         <button 
+                          onClick={() => {
+                            const link = document.createElement('a');
+                            link.href = receipt.qrCodeDataURL;
+                            link.download = `PCMC_QR_${receipt.billNumber}.png`;
+                            link.click();
+                          }}
+                          className="px-4 py-2 bg-[#ff9900] text-black hover:bg-[#e38800] transition-colors border border-slate-600 text-xs font-bold"
+                        >
+                          QR
+                        </button>
+                        <button 
                           onClick={() => setPrintingReceipt(receipt)}
                           className="px-4 py-2 bg-white text-slate-700 hover:bg-slate-50 transition-colors border border-slate-400 text-xs font-semibold"
                         >
