@@ -35,6 +35,21 @@ export default function AdminDashboard() {
     if (currentUser) fetchReceipts();
   }, [currentUser, apiUrl]);
 
+  const handleDelete = async (receiptId) => {
+    if (!window.confirm('Are you sure you want to delete this receipt?')) return;
+    
+    try {
+      const token = await currentUser.getIdToken();
+      await axios.delete(`${apiUrl}/api/receipt/${receiptId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setReceipts(prev => prev.filter(r => r.receiptId !== receiptId));
+    } catch (error) {
+      console.error('Error deleting receipt:', error);
+      alert('Failed to delete receipt');
+    }
+  };
+
   useEffect(() => {
     if (printingReceipt && hiddenReceiptRef.current) {
       setTimeout(async () => {
@@ -173,6 +188,12 @@ export default function AdminDashboard() {
                         >
                           View
                         </Link>
+                        <button 
+                          onClick={() => handleDelete(receipt.receiptId)}
+                          className="px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 transition-colors border border-red-300 text-xs font-bold"
+                        >
+                          Delete
+                        </button>
                       </td>
                     </tr>
                   ))}

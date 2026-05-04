@@ -15,12 +15,14 @@ export default function QRDisplay({ qrDataURL, receiptUrl, receiptId }) {
   return (
     <div className="text-center animate-scale-in">
       <div className="flex justify-center mb-4">
-        <div className="p-3 bg-white border border-slate-300">
-          <img
-            src={qrDataURL}
-            alt="QR Code"
-            className="w-56 h-56"
-          />
+        <div className="p-3 bg-white border border-slate-300 hover:border-blue-500 transition-colors cursor-pointer group">
+          <a href={receiptUrl} target="_blank" rel="noopener noreferrer">
+            <img
+              src={qrDataURL}
+              alt="QR Code"
+              className="w-56 h-56 group-hover:opacity-90 transition-opacity"
+            />
+          </a>
         </div>
       </div>
 

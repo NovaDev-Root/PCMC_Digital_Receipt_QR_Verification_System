@@ -75,9 +75,6 @@ router.post('/create', verifyToken, async (req, res) => {
       createdAt:      new Date().toISOString(),
     };
 
-    // Save to Firestore (or mock)
-    await getDb().collection('receipts').doc(receiptId).set(receiptData);
-
     // Generate QR code
     const clientUrl  = process.env.CLIENT_URL || 'http://localhost:5173';
     const receiptUrl = `${clientUrl}/receipt/${receiptId}`;
@@ -87,6 +84,13 @@ router.post('/create', verifyToken, async (req, res) => {
       margin: 2,
       width: 300,
       color: { dark: '#1a3a8f', light: '#ffffff' },
+    });
+
+    // Save to Firestore with QR info
+    await getDb().collection('receipts').doc(receiptId).set({
+      ...receiptData,
+      receiptUrl,
+      qrCodeDataURL
     });
 
     res.status(201).json({
@@ -99,6 +103,18 @@ router.post('/create', verifyToken, async (req, res) => {
   } catch (err) {
     console.error('Create receipt error:', err);
     res.status(500).json({ error: err.message || 'Failed to create receipt' });
+  }
+});
+
+// ─── DELETE /api/receipt/:receiptId ──────────────────────────────────────────
+router.delete('/:receiptId', verifyToken, async (req, res) => {
+  try {
+    const { receiptId } = req.params;
+    await getDb().collection('receipts').doc(receiptId).delete();
+    res.json({ success: true, message: 'Receipt deleted successfully' });
+  } catch (err) {
+    console.error('Delete receipt error:', err);
+    res.status(500).json({ error: err.message || 'Failed to delete receipt' });
   }
 });
 
