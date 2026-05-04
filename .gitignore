@@ -1,0 +1,20 @@
+# Dependency directories
+node_modules/
+**/node_modules/
+
+# Environment variables
+.env
+**/.env
+.env.local
+
+# Build outputs
+dist/
+build/
+.next/
+
+# Secrets
+service-account.json
+**/service-account.json
+
+# OS files
+.DS_Store

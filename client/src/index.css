@@ -1,0 +1,162 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-pcmc-blue: #1a3a8f;
+  --color-pcmc-blue-light: #2563eb;
+  --color-pcmc-red: #cc0000;
+  --color-pcmc-gold: #d97706;
+}
+
+:root {
+  --pcmc-blue: #1a3a8f;
+  --pcmc-blue-light: #2563eb;
+  --pcmc-blue-dark: #0f2460;
+  --pcmc-red: #cc0000;
+  --pcmc-red-light: #ef4444;
+  --pcmc-gold: #d97706;
+  --pcmc-green: #16a34a;
+  --pcmc-orange: #ea580c;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+button, a, input, select, textarea {
+  transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
+              border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
+              box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
+              transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body {
+  font-family: 'Noto Sans Devanagari', 'Inter', sans-serif;
+  background: #fdfdfe;
+  color: #1e293b;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Marathi text utility */
+.devanagari {
+  font-family: 'Noto Sans Devanagari', sans-serif;
+  letter-spacing: -0.01em;
+}
+
+/* PCMC themed scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f8fafc;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+  border: 2px solid #f8fafc;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #1a3a8f;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInScale {
+  from { opacity: 0; transform: scale(0.98); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4); }
+  50%       { box-shadow: 0 0 0 10px rgba(37, 99, 235, 0); }
+}
+
+.animate-fade-in { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.animate-scale-in { animation: fadeInScale 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.animate-pulse-glow { animation: pulse-glow 2s infinite; }
+
+/* Receipt card print styles */
+@media print {
+  body { background: white !important; }
+  .no-print { display: none !important; }
+  .receipt-card {
+    box-shadow: none !important;
+    border: 1.5px dashed #1a3a8f !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+  }
+}
+
+/* Status badges */
+.badge-paid {
+  background-color: #f0fdf4;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+  font-weight: 800;
+}
+.badge-pending {
+  background-color: #fffaf5;
+  color: #9a3412;
+  border: 1px solid #fed7aa;
+  font-weight: 800;
+}
+
+/* Form inputs - Re-engineered for perfection */
+.form-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 1rem;
+  font-size: 0.9375rem;
+  color: #0f172a;
+  background: #ffffff;
+  outline: none;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+.form-input:hover {
+  border-color: #cbd5e1;
+}
+.form-input:focus {
+  border-color: #1a3a8f;
+  box-shadow: 0 0 0 4px rgba(26, 58, 143, 0.08), 0 4px 12px rgba(26, 58, 143, 0.05);
+  background: #fff;
+}
+.form-input[readonly] {
+  background: #f8fafc;
+  border-style: dashed;
+  color: #64748b;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #64748b;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* Glassmorphism card */
+.glass-card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 20px 40px rgba(15, 36, 96, 0.08);
+}
+
+/* Modal overlay */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(8px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
