@@ -30,7 +30,7 @@ export default function Navbar() {
               <img src="/logo.png" alt="PCMC Logo" className="w-full h-auto object-contain" />
             </div>
             <div className="hidden sm:block">
-              <p className="text-white font-black text-sm devanagari tracking-tight">
+              <p className="text-white font-bold text-sm devanagari">
                 पिंपरी चिंचवड महानगरपालिका
               </p>
               <p className="text-blue-300 text-[10px] uppercase font-bold tracking-widest">Admin Portal</p>

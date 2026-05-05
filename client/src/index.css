@@ -40,7 +40,8 @@ body {
 /* Marathi text utility */
 .devanagari {
   font-family: 'Noto Sans Devanagari', sans-serif;
-  letter-spacing: -0.01em;
+  font-feature-settings: "kern", "liga", "clig";
+  font-variant-ligatures: common-ligatures;
 }
 
 /* PCMC themed scrollbar */

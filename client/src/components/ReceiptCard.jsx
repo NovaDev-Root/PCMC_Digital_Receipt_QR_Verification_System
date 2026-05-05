@@ -45,8 +45,8 @@ const ReceiptCard = forwardRef(({ receipt, qrDataURL }, ref) => {
             <h2 className="text-[18px] font-bold devanagari leading-snug">झोपडपट्टी निर्मूलन व पुनर्वसन विभाग</h2>
             <p className="text-[15px] font-bold devanagari leading-snug">एकत्रित सेवा शुल्क बील</p>
             <div className="text-[12px] devanagari leading-tight font-bold mt-1">
-              महाराष्ट्र शासन निर्णय क्र. गवसु/१२२०/प्र.क्र-२०४(१) झोपसु(१), दिनांक ११ जुलै २००१<br />
-              महाराष्ट्र शासन निर्णय क्र. गवसु/१२२०/प्र.क्र-३६४(२) झोपसु(१), दिनांक ३ मे २००३
+              महाराष्ट्र शासन निर्णय क्र. गवसु/१२२०/प्र.क्र. २०४(१) झोपसु(१), दिनांक ११ जुलै २००१<br />
+              महाराष्ट्र शासन निर्णय क्र. गवसु/१२२०/प्र.क्र. ३६४(२) झोपसु(१), दिनांक ३ मे २००३
             </div>
           </div>
         </div>
@@ -57,18 +57,18 @@ const ReceiptCard = forwardRef(({ receipt, qrDataURL }, ref) => {
         <div className="flex justify-between text-[13px] mb-2 font-bold" style={{ color: textBlue }}>
           <div className="w-[55%] space-y-1">
             <div className="flex"><span className="w-48 devanagari">बील क्रमांक:</span> <span className="devanagari text-black">{receipt.billNumber}</span></div>
-            <div className="flex"><span className="w-48 devanagari">झोपडपट्टीचे नाव:</span> <span className="devanagari text-black">{receipt.area || 'आनंद नगर_Chinchwad'}</span></div>
-            <div className="flex items-start"><span className="w-48 devanagari">झोपडी धारकाचे नाव / पत्ता:</span> <span className="flex-1 devanagari text-black">{receipt.holderName} <br /> {receipt.address || 'Nivasi'}</span></div>
-            <div className="flex"><span className="w-48 devanagari">वापर:</span> <span className="devanagari text-black">{receipt.usage || 'Nivasi'}</span></div>
-            <div className="flex"><span className="w-48 devanagari">क्षेत्र:</span> <span className="devanagari text-black">{receipt.areaSquareFeet || '100.00'} चौ.फू</span></div>
-            <div className="flex"><span className="w-48 devanagari">मागणी कालावधी पासून:</span> <span className="devanagari text-black">{receipt.demandFrom || '01 / 04 / 2025'}</span></div>
+            <div className="flex"><span className="w-48 devanagari">झोपडपट्टीचे नाव:</span> <span className="devanagari text-black">{receipt.area || '—'}</span></div>
+            <div className="flex items-start"><span className="w-48 devanagari">झोपडी धारकाचे नाव / पत्ता:</span> <span className="flex-1 devanagari text-black">{receipt.holderName} <br /> {receipt.address || '—'}</span></div>
+            <div className="flex"><span className="w-48 devanagari">वापर:</span> <span className="devanagari text-black">{receipt.usage || 'निवासी'}</span></div>
+            <div className="flex"><span className="w-48 devanagari">क्षेत्र:</span> <span className="devanagari text-black">{receipt.areaSquareFeet || '0.00'} चौ.फू</span></div>
+            <div className="flex"><span className="w-48 devanagari">मागणी कालावधी पासून:</span> <span className="devanagari text-black">{receipt.demandFrom || '—'}</span></div>
           </div>
           <div className="w-[40%] space-y-1">
             <div className="flex"><span className="w-36 devanagari">बील दिनांक:</span> <span className="devanagari text-black">{receipt.billDate}</span></div>
             <div className="flex"><span className="w-36 devanagari">जागा मालकी:</span> <span className="devanagari text-black">{receipt.landType || 'Khajagi'}</span></div>
             <div className="flex"><span className="w-36 devanagari">विभागाचे नाव:</span> <span className="devanagari text-black">{receipt.department || '—'}</span></div>
-            <div className="flex"><span className="w-36 devanagari">झोपडी क्रमांक:</span> <span className="devanagari text-black">{receipt.jhopadiNumber || '3/21/J/25'}</span></div>
-            <div className="flex"><span className="w-36 devanagari">ते दिनांक:</span> <span className="devanagari text-black">{receipt.validTill || '31 / 03 / 2026'}</span></div>
+            <div className="flex"><span className="w-36 devanagari">झोपडी क्रमांक:</span> <span className="devanagari text-black">{receipt.jhopadiNumber || '—'}</span></div>
+            <div className="flex"><span className="w-36 devanagari">ते दिनांक:</span> <span className="devanagari text-black">{receipt.validTill || '—'}</span></div>
           </div>
         </div>
 
@@ -93,7 +93,7 @@ const ReceiptCard = forwardRef(({ receipt, qrDataURL }, ref) => {
               <td className="border-2 p-1 border-inherit text-black">{receipt.currentDemand || '300'}</td>
               <td className="border-2 p-1 border-inherit text-black">{receipt.totalAmount || '800'}</td>
             </tr>
-            <tr className="text-center bg-white text-black font-bold">
+            <tr className="text-center text-black font-bold">
               <td className="border-2 p-1 devanagari text-left border-inherit" style={{ color: primaryBlue }}>एकूण</td>
               <td className="border-2 p-1 border-inherit text-black">{receipt.pendingAmount || '500'}</td>
               <td className="border-2 p-1 border-inherit text-black">{receipt.currentDemand || '300'}</td>
@@ -158,7 +158,7 @@ const ReceiptCard = forwardRef(({ receipt, qrDataURL }, ref) => {
               <img
                 src={qrDataURL}
                 alt="QR Code"
-                className="w-36 h-36 border-4 border-white shadow-sm mix-blend-multiply"
+                className="w-36 h-36 border-4 border-white shadow-sm"
                 style={{ filter: 'grayscale(100%) contrast(200%)' }}
               />
             )}

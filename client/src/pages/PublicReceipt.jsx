@@ -13,6 +13,7 @@ export default function PublicReceipt() {
   const [error, setError] = useState('');
 
   useEffect(() => {
+    document.title = `PCMC PayCard | ${receiptId}`;
     const load = async () => {
       setLoading(true);
       setError('');

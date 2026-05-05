@@ -4,10 +4,10 @@ import { AuthProvider } from './context/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
 import Navbar from './components/Navbar';
 
-import AdminLogin     from './pages/AdminLogin';
+import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
-import CreateReceipt  from './pages/CreateReceipt';
-import PublicReceipt  from './pages/PublicReceipt';
+import CreateReceipt from './pages/CreateReceipt';
+import PublicReceipt from './pages/PublicReceipt';
 import OriginalReceiptView from './pages/OriginalReceiptView';
 
 export default function App() {
@@ -43,8 +43,8 @@ export default function App() {
 
           {/* Redirects */}
           <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
-          <Route path="/"     element={<Navigate to="/admin/login" replace />} />
-          <Route path="*"     element={<Navigate to="/admin/login" replace />} />
+          <Route path="/" element={<Navigate to="/admin/login" replace />} />
+          <Route path="*" element={<Navigate to="/admin/login" replace />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

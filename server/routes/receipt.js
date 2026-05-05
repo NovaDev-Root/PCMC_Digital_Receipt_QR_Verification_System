@@ -76,12 +76,18 @@ router.post('/create', verifyToken, async (req, res) => {
     };
 
     // Generate QR code
-    // Force production URL so localhost is never embedded in the QR Code
-    let clientUrl = process.env.CLIENT_URL || 'https://pcmc-digital-receipt-qr-verificatio.vercel.app';
-    if (clientUrl.includes('localhost')) {
-      clientUrl = 'https://pcmc-digital-receipt-qr-verificatio.vercel.app';
+    // Prioritize CLIENT_URL from environment; ensuring no localhost leak in production
+    let clientUrl = process.env.CLIENT_URL;
+    
+    // If we are in what looks like a production environment (not localhost) 
+    // but CLIENT_URL is missing, we should be very careful.
+    if (!clientUrl) {
+      clientUrl = 'http://localhost:5173';
+      console.warn("WARNING: CLIENT_URL is not set. Falling back to localhost for QR generation.");
     }
-    const receiptUrl = `${clientUrl}/receipt/${receiptId}`;
+    
+    const receiptUrl = `${clientUrl.replace(/\/$/, '')}/receipt/${receiptId}`;
+    console.log(`[QR GEN] Targeting URL: ${receiptUrl}`);
 
     const qrCodeDataURL = await QRCode.toDataURL(receiptUrl, {
       errorCorrectionLevel: 'H',

@@ -19,9 +19,9 @@ const formatDate = (d) => {
 function FormField({ label, marathi, children, centered }) {
   return (
     <div className={`space-y-1.5 ${centered ? 'text-center' : ''}`}>
-      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] devanagari">
+      <label className="block text-[10px] font-black text-slate-400 devanagari">
         <span className="text-slate-600">{marathi}</span>
-        {label && <span className="ml-1 opacity-50">({label})</span>}
+        {label && <span className="ml-1 opacity-50 font-sans font-bold uppercase tracking-widest">({label})</span>}
       </label>
       {children}
     </div>
@@ -40,7 +40,8 @@ export default function CreateReceipt() {
     address:        '',
     area:           '',
     landType:       'Khajagi',
-    department:     '-',
+    customLandType: '',
+    department:     '',
     jhopadiNumber:  '',
     areaSquareFeet: '',
     demandFrom:     '',
@@ -68,6 +69,7 @@ export default function CreateReceipt() {
       const token = await getIdToken();
       const payload = {
         ...form,
+        landType:   form.landType === 'Other' ? form.customLandType : form.landType,
         billDate:   formatDate(form.billDate),
         validTill:  formatDate(form.validTill),
         demandFrom: formatDate(form.demandFrom),
@@ -90,7 +92,7 @@ export default function CreateReceipt() {
       <div className="min-h-screen bg-[#f8fafc] flex flex-col items-center justify-start pt-20 p-6">
         <div className="bg-white max-w-md w-full border border-slate-300 shadow-sm">
           <div className="bg-[#0f1111] px-8 py-6 text-center border-b border-slate-300">
-            <h2 className="text-white font-bold text-xl tracking-tight devanagari">पावती यशस्वीरित्या तयार!</h2>
+            <h2 className="text-white font-bold text-xl devanagari">पावती यशस्वीरित्या तयार!</h2>
             <p className="text-gray-300 text-[10px] uppercase font-semibold tracking-widest mt-1">Bill Generation Complete</p>
           </div>
 
@@ -139,7 +141,7 @@ export default function CreateReceipt() {
           <div className="inline-block bg-[#232f3e] text-white px-4 py-2 mb-4 border border-[#232f3e]">
             <span className="text-[10px] font-bold uppercase tracking-widest">Official PCMC Billing Portal</span>
           </div>
-          <h1 className="text-4xl md:text-5xl font-black text-slate-900 devanagari tracking-tight leading-tight">
+          <h1 className="text-4xl md:text-5xl font-bold text-slate-900 devanagari leading-tight">
             नवीन सेवा शुल्क बील
           </h1>
           <p className="text-slate-500 font-bold text-sm mt-2 uppercase tracking-widest">Jhopadpatti Nirmulan Vibhag</p>
@@ -159,7 +161,7 @@ export default function CreateReceipt() {
           {/* Card: Bill Details */}
           <div className="bg-white border border-slate-300 w-full">
             <div className="bg-[#f3f3f3] border-b border-slate-300 px-8 py-4">
-              <h2 className="text-black font-bold text-base devanagari uppercase leading-none">बील माहिती (Bill Basic Info)</h2>
+              <h2 className="text-black font-bold text-base devanagari leading-none">बील माहिती (Bill Basic Info)</h2>
             </div>
             
             <div className="p-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -181,7 +183,7 @@ export default function CreateReceipt() {
           {/* Card: Holder Details */}
           <div className="bg-white border border-slate-300 w-full">
             <div className="bg-[#f3f3f3] border-b border-slate-300 px-8 py-4">
-              <h2 className="text-black font-bold text-base devanagari uppercase leading-none">धारक माहिती (Beneficiary Details)</h2>
+              <h2 className="text-black font-bold text-base devanagari leading-none">धारक माहिती (Beneficiary Details)</h2>
             </div>
             
             <div className="p-10 space-y-10">
@@ -207,7 +209,14 @@ export default function CreateReceipt() {
                     <option value="Khajagi">खाजगी (Private)</option>
                     <option value="Sarkari">सरकारी (Govt)</option>
                     <option value="Municipal">महानगरपालिका (PCMC)</option>
+                    <option value="Other">इतर (Other)</option>
                   </select>
+                  {form.landType === 'Other' && (
+                    <input name="customLandType" value={form.customLandType || ''} onChange={handleChange} placeholder="जागा मालकी लिहा..." className="form-input font-bold devanagari mt-2" required />
+                  )}
+                </FormField>
+                <FormField marathi="विभागाचे नाव" label="Department">
+                  <input name="department" value={form.department} onChange={handleChange} placeholder="विभागाचे नाव..." className="form-input font-bold devanagari" />
                 </FormField>
                 <FormField marathi="क्षेत्र (चौ.फू)" label="Sq. Ft.">
                   <div className="relative">
@@ -222,7 +231,7 @@ export default function CreateReceipt() {
           {/* Card: Financials */}
           <div className="bg-white border border-slate-300 w-full">
             <div className="bg-[#f3f3f3] border-b border-slate-300 px-8 py-4">
-              <h2 className="text-black font-bold text-base devanagari uppercase leading-none">रक्कम तपशील (Demand & Financials)</h2>
+              <h2 className="text-black font-bold text-base devanagari leading-none">रक्कम तपशील (Demand & Financials)</h2>
             </div>
             
             <div className="p-10 grid grid-cols-1 md:grid-cols-12 gap-8 items-end">
@@ -244,7 +253,7 @@ export default function CreateReceipt() {
               </div>
               <div className="md:col-span-4">
                 <div className="bg-white border-2 border-black p-4 flex flex-col items-center justify-center h-full min-h-[90px]">
-                  <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-1 devanagari">एकूण देय रक्कम (Total)</p>
+                  <p className="text-[10px] font-bold text-slate-600 mb-1 devanagari">एकूण देय रक्कम <span className="font-sans uppercase tracking-widest opacity-70">(Total)</span></p>
                   <p className="text-3xl font-black text-black">₹{total.toLocaleString('en-IN')}</p>
                 </div>
               </div>

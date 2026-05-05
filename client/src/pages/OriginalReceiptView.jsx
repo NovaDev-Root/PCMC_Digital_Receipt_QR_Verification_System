@@ -12,6 +12,7 @@ export default function OriginalReceiptView() {
   const [error, setError] = useState('');
 
   useEffect(() => {
+    document.title = `Official Receipt | ${receiptId}`;
     const load = async () => {
       setLoading(true);
       setError('');
