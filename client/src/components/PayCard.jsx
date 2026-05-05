@@ -17,10 +17,10 @@ const PayCard = ({ receipt }) => {
             <p className="text-[10.5px] sm:text-[13px] md:text-[16px]">झोपडपट्टी निर्मूलन व पुनर्वसन विभाग</p>
             <p className="text-[9.5px] sm:text-[12px] md:text-[15px]">एकत्रित सेवा शुल्क बील</p>
             <p className="text-[8.5px] sm:text-[11px] md:text-[14px] mt-1">
-              महाराष्ट्र शासन निर्णय क्र. गवसु/१२२०/प्र.क्र. २०४(१) झोपसु(१), दिनांक ११ जुलै २००१
+              <span style={{ fontFamily: 'sans-serif' }}>महाराष्ट्र</span> शासन निर्णय क्र. गवसु/१२२०/प्र.क्र. २०४(१) झोपसु(१), दिनांक ११ जुलै २००१
             </p>
             <p className="text-[8.5px] sm:text-[11px] md:text-[14px] mt-0.5">
-              महाराष्ट्र शासन निर्णय क्र. गवसु/१२२०/प्र.क्र. ३६४(२) झोपसु(१), दिनांक ३ मे २००३
+              <span style={{ fontFamily: 'sans-serif' }}>महाराष्ट्र</span> शासन निर्णय क्र. गवसु/१२२०/प्र.क्र. ३६४(२) झोपसु(१), दिनांक ३ मे २००३
             </p>
           </div>
         </div>
