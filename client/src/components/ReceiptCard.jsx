@@ -8,6 +8,7 @@ const ReceiptCard = forwardRef(({ receipt, qrDataURL }, ref) => {
   const textBlue = '#1e3a8a'; // Dark blue for general text
   const alertRed = '#c23b3b'; // Red for instructions
   const signatureBlue = '#4a6eb0'; // Original medium blue for the signature
+  const borderColor = '#1e3a8a'; // Black borders
 
   return (
     <div
@@ -51,7 +52,7 @@ const ReceiptCard = forwardRef(({ receipt, qrDataURL }, ref) => {
           </div>
         </div>
 
-        <div className="border-t-2 border-dashed mb-2 mt-1" style={{ borderColor: primaryBlue }}></div>
+        <div className="border-t-2 border-dashed mb-2 mt-1" style={{ borderColor: borderColor }}></div>
 
         {/* ── Info Grid ── */}
         <div className="flex justify-between text-[13px] mb-2 font-bold" style={{ color: textBlue }}>
@@ -77,7 +78,7 @@ const ReceiptCard = forwardRef(({ receipt, qrDataURL }, ref) => {
         </p>
 
         {/* ── Financial Table ── */}
-        <table className="w-full border-collapse border-2 text-[13px] mb-2 mt-1" style={{ borderColor: primaryBlue }}>
+        <table className="w-full border-collapse border-2 text-[13px] mb-2 mt-1" style={{ borderColor: borderColor }}>
           <thead>
             <tr style={{ color: primaryBlue }}>
               <th className="border-2 p-1 devanagari border-inherit font-bold text-center w-1/4">कराचे नाव</th>
@@ -118,7 +119,7 @@ const ReceiptCard = forwardRef(({ receipt, qrDataURL }, ref) => {
 
         {/* ── Instructions ── */}
         <div className="relative flex items-center justify-center mb-0.5">
-          <div className="absolute w-full border-t-2 border-dashed" style={{ borderColor: primaryBlue }}></div>
+          <div className="absolute w-full border-t-2 border-dashed" style={{ borderColor: borderColor }}></div>
 
         </div>
 
@@ -135,7 +136,7 @@ const ReceiptCard = forwardRef(({ receipt, qrDataURL }, ref) => {
           <li>७) ऑनलाईन पेमेंट करण्याकरिता https://noncoreerp.pcmcindia.gov.in/ पोर्टलवरती लॉगिन करा अथवा खाली दिलेला क्यूआर कोड द्वारे पेमेंट करण्याकरिता क्यूआर कोड स्कॅन करा.</li>
         </ol>
 
-        <div className="border-t-2 border-dashed mb-2" style={{ borderColor: primaryBlue }}></div>
+        <div className="border-t-2 border-dashed mb-2" style={{ borderColor: borderColor }}></div>
 
         {/* ── Footer / QR ── */}
         <div className="text-[13px] devanagari text-center font-bold mb-4" style={{ color: primaryBlue }}>
