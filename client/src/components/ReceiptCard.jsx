@@ -89,13 +89,13 @@ const ReceiptCard = forwardRef(({ receipt, qrDataURL }, ref) => {
           </thead>
           <tbody>
             <tr className="text-center font-bold text-black">
-              <td className="border-2 p-1 devanagari text-left border-inherit" style={{ color: primaryBlue }}>एकत्रित सेवा शुल्क</td>
+              <td className="border-2 p-1 devanagari text-left border-inherit" style={{ color: primaryBlue, borderColor: borderColor }}>एकत्रित सेवा शुल्क</td>
               <td className="border-2 p-1 border-inherit text-black">{receipt.pendingAmount || '500'}</td>
               <td className="border-2 p-1 border-inherit text-black">{receipt.currentDemand || '300'}</td>
               <td className="border-2 p-1 border-inherit text-black">{receipt.totalAmount || '800'}</td>
             </tr>
             <tr className="text-center text-black font-bold">
-              <td className="border-2 p-1 devanagari text-left border-inherit" style={{ color: primaryBlue }}>एकूण</td>
+              <td className="border-2 p-1 devanagari text-left border-inherit" style={{ color: primaryBlue, borderColor: borderColor }}>एकूण</td>
               <td className="border-2 p-1 border-inherit text-black">{receipt.pendingAmount || '500'}</td>
               <td className="border-2 p-1 border-inherit text-black">{receipt.currentDemand || '300'}</td>
               <td className="border-2 p-1 border-inherit text-black">{receipt.totalAmount || '800'}</td>
