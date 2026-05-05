@@ -1,5 +1,5 @@
 // src/pages/CreateReceipt.jsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
@@ -63,6 +63,11 @@ export default function CreateReceipt() {
   const [error, setError]           = useState('');
   const [submitted, setSubmitted]   = useState(null);
 
+  // Ping the backend to wake up Render free tier on component mount
+  useEffect(() => {
+    axios.get(`${API_URL}/`).catch(() => {});
+  }, []);
+
   const total = (Number(form.pendingAmount) || 0) + (Number(form.currentDemand) || 0);
 
   const handleChange = (e) => {
@@ -91,7 +96,11 @@ export default function CreateReceipt() {
 
       setSubmitted(res.data);
     } catch (err) {
-      setError(err.response?.data?.error || err.message || 'Failed to connect to municipal server');
+      if (err.message === 'Network Error' || err.code === 'ECONNABORTED' || err.message.toLowerCase().includes('time out') || err.message.toLowerCase().includes('timeout')) {
+        setError('The server is waking up or timed out. Please wait a minute and try submitting again.');
+      } else {
+        setError(err.response?.data?.error || err.message || 'Failed to connect to municipal server');
+      }
     } finally {
       setLoading(false);
     }
