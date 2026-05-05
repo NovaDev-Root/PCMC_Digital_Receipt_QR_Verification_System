@@ -93,7 +93,7 @@ router.post('/create', verifyToken, async (req, res) => {
       errorCorrectionLevel: 'H',
       margin: 2,
       width: 300,
-      color: { dark: '#1a3a8f', light: '#ffffff' },
+      color: { dark: '#000000', light: '#ffffff' },
     });
 
     // Save to Firestore with QR info

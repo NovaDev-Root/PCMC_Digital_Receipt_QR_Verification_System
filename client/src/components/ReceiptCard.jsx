@@ -31,7 +31,7 @@ const ReceiptCard = forwardRef(({ receipt, qrDataURL }, ref) => {
         className="absolute inset-0 flex items-center justify-center pointer-events-none"
         style={{ zIndex: 0 }}
       >
-        <img src="/logo.png" alt="" style={{ width: '40.5%', filter: 'opacity(0.12)', transform: 'translateY(-32%)' }} />
+        <img src="/logo.png" alt="" style={{ width: '40.5%', opacity: 0.08, transform: 'translateY(-32%)' }} />
       </div>
 
       <div className="relative" style={{ zIndex: 1 }}>
@@ -159,7 +159,7 @@ const ReceiptCard = forwardRef(({ receipt, qrDataURL }, ref) => {
                 src={qrDataURL}
                 alt="QR Code"
                 className="w-36 h-36 border-4 border-white shadow-sm"
-                style={{ filter: 'grayscale(100%) contrast(200%)' }}
+                style={{ objectFit: 'contain' }}
               />
             )}
           </div>
