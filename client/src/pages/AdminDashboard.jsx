@@ -54,21 +54,23 @@ export default function AdminDashboard() {
     if (printingReceipt && hiddenReceiptRef.current) {
       setTimeout(async () => {
         try {
-          const imgData = await toPng(hiddenReceiptRef.current, {
-            pixelRatio: 3,
-            backgroundColor: '#ffffff',
-            style: { transform: 'none' }
+          const imgData = await toPng(hiddenReceiptRef.current, { 
+            quality: 1, 
+            pixelRatio: 3, 
+            style: { backgroundColor: '#ffffff' }
           });
           
           const element = hiddenReceiptRef.current;
           const width = element.offsetWidth;
           const height = element.offsetHeight;
           
-          const pdf = new jsPDF('p', 'mm', 'a4');
-          const pdfWidth = pdf.internal.pageSize.getWidth();
-          const pdfHeight = (height * pdfWidth) / width;
+          const pdf = new jsPDF({
+            orientation: width > height ? 'l' : 'p',
+            unit: 'px',
+            format: [width, height]
+          });
           
-          pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+          pdf.addImage(imgData, 'PNG', 0, 0, width, height);
           pdf.save(`PCMC_Official_Bill_${printingReceipt.billNumber}.pdf`);
         } catch (err) {
           console.error('Error generating PDF:', err);
@@ -79,6 +81,34 @@ export default function AdminDashboard() {
       }, 500);
     }
   }, [printingReceipt]);
+
+  const handlePrint = (receipt) => {
+    if (!receipt.qrCodeDataURL) {
+      setPrintingReceipt(receipt);
+      return;
+    }
+    const img = new Image();
+    img.crossOrigin = "Anonymous";
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imageData.data;
+      for (let i = 0; i < data.length; i += 4) {
+        if (data[i] < 200 || data[i+1] < 200 || data[i+2] < 200) {
+           data[i] = 0;
+           data[i+1] = 0;
+           data[i+2] = 0;
+        }
+      }
+      ctx.putImageData(imageData, 0, 0);
+      setPrintingReceipt({ ...receipt, qrCodeDataURL: canvas.toDataURL('image/png') });
+    };
+    img.src = receipt.qrCodeDataURL;
+  };
 
   const [search, setSearch] = useState('');
   const filteredReceipts = receipts.filter(r =>
@@ -198,7 +228,7 @@ export default function AdminDashboard() {
                           QR
                         </button>
                         <button
-                          onClick={() => setPrintingReceipt(receipt)}
+                          onClick={() => handlePrint(receipt)}
                           className="px-4 py-2 bg-white text-slate-700 hover:bg-slate-50 transition-colors border border-slate-400 text-xs font-semibold"
                         >
                           Print
