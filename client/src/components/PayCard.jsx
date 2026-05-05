@@ -1,16 +1,19 @@
 import React from 'react';
+import ReceiptCard from './ReceiptCard';
 
 const PayCard = ({ receipt }) => {
   if (!receipt) return null;
 
   const [scale, setScale] = React.useState(1);
+  const containerRef = React.useRef(null);
 
   React.useEffect(() => {
     const handleResize = () => {
       const width = window.innerWidth;
-      // Full screen occupy logic: Scale to fit with minimal side space
-      if (width < 560) {
-        setScale((width - 8) / 540); // 4px margin on each side for maximum size
+      const targetWidth = 794; // approx 210mm in pixels at 96dpi
+      
+      if (width < targetWidth + 32) { // 32px padding
+        setScale((width - 32) / targetWidth); 
       } else {
         setScale(1);
       }
@@ -21,82 +24,22 @@ const PayCard = ({ receipt }) => {
   }, []);
 
   return (
-    <div className="w-full flex items-start justify-center bg-white min-h-screen font-sans overflow-x-hidden">
-      <div
-        className="bg-white border-[1.5px] border-black p-4 shadow-sm origin-top transition-transform duration-300"
+    <div className="w-full flex flex-col items-center justify-start bg-slate-50 min-h-screen font-sans overflow-x-hidden pt-8 pb-20">
+      <div 
+        ref={containerRef}
+        className="origin-top transition-transform duration-300 flex flex-col items-center"
         style={{
-          width: '540px',
           transform: `scale(${scale})`,
-          marginTop: '12px',
-          marginBottom: '20px'
+          width: '794px', // Fixed width to match A4 proportions for scaling
         }}
       >
-        {/* Header Section - Logo Left (Matches Ref Image) */}
-        <div className="flex items-center mb-4 gap-1">
-          <div className="w-[100px] shrink-0">
-            <img src="/logo.png" alt="PCMC Logo" className="w-full h-auto object-contain" />
-          </div>
-          <div className="flex-1 text-center pr-2">
-            <h2 className="text-[#1a3a8f] font-black text-[18px] sm:text-xl devanagari leading-tight">पिंपरी चिंचवड महानगरपालिका</h2>
-            <h3 className="text-[#1a3a8f] font-black text-[13px] sm:text-[15px] devanagari leading-tight">झोपडपट्टी निर्मूलन व पुनर्वसन विभाग</h3>
-            <p className="text-[#1a3a8f] font-black text-[12px] sm:text-[14px] devanagari leading-tight">एकत्रित सेवा शुल्क बील</p>
-
-            {/* GO Numbers - Centered in right area */}
-            <div className="mt-1 text-[#1a3a8f] font-black text-[9px] sm:text-[11px] devanagari leading-tight">
-              महाराष्ट्र शासन निर्णय क्र. गवसु/१२२०/प्र.क्र-२०४(१) झोपसु(१), दिनांक ११ जुलै २००१<br />
-              महाराष्ट्र शासन निर्णय क्र. गवसु/१२२०/प्र.क्र-३६४(२) झोपसु(१), दिनांक ३ मे २००३
-            </div>
-          </div>
+        <div className="shadow-xl border border-slate-200 bg-white">
+          <ReceiptCard receipt={receipt} qrDataURL={receipt.qrCodeDataURL} />
         </div>
-
-        {/* Dashed Line */}
-        <div className="border-t-[1.5px] border-dashed border-[#1a3a8f] mb-6"></div>
-
-        {/* Data Grid - Optimized Flex Layout */}
-        <div className="space-y-4">
-          <div className="flex flex-wrap gap-y-4">
-            {/* Row 1 */}
-            <div className="w-1/2 flex items-center pr-1">
-              <span className="w-[70px] text-[11px] font-black devanagari leading-tight shrink-0">बील क्रमांक:</span>
-              <div className="flex-1 bg-slate-50 border-[1.2px] border-black px-1 py-1 text-[11px] font-bold devanagari h-8 flex items-center overflow-hidden">
-                {receipt.billNumber}
-              </div>
-            </div>
-            <div className="w-1/2 flex items-center pl-1">
-              <span className="w-[70px] text-[11px] font-black devanagari leading-tight shrink-0">बील दिनांक:</span>
-              <div className="flex-1 bg-slate-50 border-[1.2px] border-black px-1 py-1 text-[11px] font-bold devanagari h-8 flex items-center">
-                {receipt.billDate}
-              </div>
-            </div>
-
-            {/* Row 2 */}
-            <div className="w-1/2 flex items-center pr-1">
-              <span className="w-[70px] text-[11px] font-black devanagari leading-tight shrink-0">झोपडी क्रमांक:</span>
-              <div className="flex-1 bg-slate-50 border-[1.2px] border-black px-1 py-1 text-[11px] font-bold devanagari h-8 flex items-center">
-                {receipt.jhopadiNumber || '3/21/J/25'}
-              </div>
-            </div>
-            <div className="w-1/2 flex items-center pl-1">
-              <span className="w-[70px] text-[11px] font-black devanagari leading-tight shrink-0">झोपडी धारक:</span>
-              <div className="flex-1 bg-slate-50 border-[1.2px] border-black px-1 py-1 text-[11px] font-bold devanagari h-8 flex items-center overflow-hidden">
-                {receipt.holderName}
-              </div>
-            </div>
-
-            {/* Row 3 */}
-            <div className="w-1/2 flex items-center pr-1">
-              <span className="w-[70px] text-[11px] font-black devanagari leading-tight shrink-0">एकूण रक्कम:</span>
-              <div className="flex-1 bg-slate-50 border-[1.2px] border-black px-1 py-1 text-[11px] font-black text-slate-900 h-8 flex items-center">
-                ₹ {receipt.totalAmount?.toLocaleString('en-IN')}
-              </div>
-            </div>
-          </div>
-        </div>
-
-
+        
         {/* Pay Now Button */}
-        <div className="flex justify-center mt-8 mb-2">
-          <button className="bg-[#789ce6] hover:bg-[#5e84d4] text-black font-black py-2.5 px-16 border-[1.5px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-[15px] transition-all active:shadow-none active:translate-x-[2px] active:translate-y-[2px]">
+        <div className="flex justify-center mt-12 mb-8 w-full">
+          <button className="bg-[#4a6eb0] hover:bg-[#3a5a9e] text-white font-bold py-4 px-24 rounded-lg shadow-lg text-[20px] transition-all hover:shadow-xl active:scale-95">
             Pay Now
           </button>
         </div>
