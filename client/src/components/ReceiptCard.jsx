@@ -159,7 +159,7 @@ const ReceiptCard = forwardRef(({ receipt, qrDataURL }, ref) => {
                 src={qrDataURL}
                 alt="QR Code"
                 className="w-36 h-36 border-4 border-white shadow-sm"
-                style={{ objectFit: 'contain' }}
+                style={{ filter: 'grayscale(100%) contrast(200%)', objectFit: 'contain' }}
               />
             )}
           </div>
