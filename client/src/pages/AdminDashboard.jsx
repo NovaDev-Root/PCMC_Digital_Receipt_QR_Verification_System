@@ -51,6 +51,7 @@ export default function AdminDashboard() {
   };
 
   useEffect(() => {
+    if (printingReceipt) {
       setTimeout(async () => {
         try {
           const element = hiddenReceiptRef.current;
