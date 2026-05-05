@@ -81,21 +81,21 @@ const ReceiptCard = forwardRef(({ receipt, qrDataURL }, ref) => {
         <table className="w-full border-collapse border text-[13px] mb-1 mt-0.5" style={{ borderColor: borderColor }}>
           <thead>
             <tr style={{ color: primaryBlue }}>
-              <th className="border py-1 px-1 align-middle devanagari border-inherit font-semibold text-center w-1/4">कराचे नाव</th>
-              <th className="border py-1 px-1 align-middle devanagari border-inherit font-semibold text-center w-1/4">मागील बाकी रक्कम रुपये</th>
-              <th className="border py-1 px-1 align-middle devanagari border-inherit font-semibold text-center w-1/4">चालू मागणी रक्कम रुपये</th>
-              <th className="border py-1 px-1 align-middle devanagari border-inherit font-semibold text-center w-1/4">एकूण मागणी रक्कम रुपये</th>
+              <th className="border py-1 px-1 align-middle devanagari border-inherit font-bold text-center w-1/4">कराचे नाव</th>
+              <th className="border py-1 px-1 align-middle devanagari border-inherit font-bold text-center w-1/4">मागील बाकी रक्कम रुपये</th>
+              <th className="border py-1 px-1 align-middle devanagari border-inherit font-bold text-center w-1/4">चालू मागणी रक्कम रुपये</th>
+              <th className="border py-1 px-1 align-middle devanagari border-inherit font-bold text-center w-1/4">एकूण मागणी रक्कम रुपये</th>
             </tr>
           </thead>
           <tbody>
             <tr className="text-center font-medium text-black" style={{ borderColor: borderColor }}>
-              <td className="border py-1 px-1 align-middle devanagari text-left border-inherit font-semibold" style={{ color: primaryBlue }}>एकत्रित सेवा शुल्क</td>
+              <td className="border py-1 px-1 align-middle devanagari text-left border-inherit font-bold" style={{ color: primaryBlue }}>एकत्रित सेवा शुल्क</td>
               <td className="border py-1 px-1 align-middle border-inherit text-black">{receipt.pendingAmount || '500'}</td>
               <td className="border py-1 px-1 align-middle border-inherit text-black">{receipt.currentDemand || '300'}</td>
               <td className="border py-1 px-1 align-middle border-inherit text-black">{receipt.totalAmount || '800'}</td>
             </tr>
-            <tr className="text-center text-black font-semibold" style={{ borderColor: borderColor }} >
-              <td className="border py-1 px-1 align-middle devanagari text-left border-inherit" style={{ color: primaryBlue }}>एकूण</td>
+            <tr className="text-center text-black font-medium" style={{ borderColor: borderColor }} >
+              <td className="border py-1 px-1 align-middle devanagari text-left border-inherit font-bold" style={{ color: primaryBlue }}>एकूण</td>
               <td className="border py-1 px-1 align-middle border-inherit text-black">{receipt.pendingAmount || '500'}</td>
               <td className="border py-1 px-1 align-middle border-inherit text-black">{receipt.currentDemand || '300'}</td>
               <td className="border py-1 px-1 align-middle border-inherit text-black">{receipt.totalAmount || '800'}</td>

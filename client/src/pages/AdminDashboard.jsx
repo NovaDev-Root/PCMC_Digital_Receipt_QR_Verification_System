@@ -51,16 +51,21 @@ export default function AdminDashboard() {
   };
 
   useEffect(() => {
-    if (printingReceipt && hiddenReceiptRef.current) {
       setTimeout(async () => {
         try {
-          const imgData = await toPng(hiddenReceiptRef.current, { 
+          const element = hiddenReceiptRef.current;
+          if (!element) return;
+
+          const imgData = await toPng(element, { 
             quality: 1, 
             pixelRatio: 3, 
-            style: { backgroundColor: '#ffffff' }
+            style: { 
+              backgroundColor: '#ffffff',
+              margin: '0',
+              padding: '0'
+            }
           });
           
-          const element = hiddenReceiptRef.current;
           const width = element.offsetWidth;
           const height = element.offsetHeight;
           
@@ -78,7 +83,7 @@ export default function AdminDashboard() {
         } finally {
           setPrintingReceipt(null);
         }
-      }, 500);
+      }, 300);
     }
   }, [printingReceipt]);
 
@@ -259,11 +264,15 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Hidden Receipt for PDF Generation */}
+      {/* Hidden Receipt for PDF Generation - Exact Match for View Page */}
       {printingReceipt && (
-        <div className="fixed top-0 left-[-9999px]" style={{ backgroundColor: '#ffffff' }}>
-          <div className="w-[800px] p-8" style={{ backgroundColor: '#ffffff' }}>
-            <ReceiptCard receipt={printingReceipt} qrDataURL={printingReceipt.qrCodeDataURL} ref={hiddenReceiptRef} />
+        <div className="fixed top-0 left-[-9999px] bg-slate-50 py-8 flex flex-col items-center overflow-visible">
+          <div className="bg-white shadow-xl w-full max-w-[210mm]">
+            <ReceiptCard 
+              receipt={printingReceipt} 
+              qrDataURL={printingReceipt.qrCodeDataURL} 
+              ref={hiddenReceiptRef} 
+            />
           </div>
         </div>
       )}
