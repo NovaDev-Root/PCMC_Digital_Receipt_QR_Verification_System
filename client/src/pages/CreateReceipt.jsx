@@ -14,11 +14,16 @@ const formatDate = (d) => {
   return `${day}/${m}/${y}`;
 };
 
-// Auto-generate a random bill number
+// Auto-generate a random bill number in format 3/21/YYYYYYYY/XXXXX
 const generateBillNumber = () => {
-  const year = new Date().getFullYear();
+  const date = new Date();
+  let startYear = date.getFullYear();
+  if (date.getMonth() < 3) {
+    startYear -= 1; // Before April belongs to previous financial year
+  }
+  const endYear = startYear + 1;
   const random = Math.floor(10000 + Math.random() * 90000);
-  return `PCMC/${year}/${random}`;
+  return `3/21/${startYear}${endYear}/${random}`;
 };
 
 function FormField({ label, marathi, children, centered }) {

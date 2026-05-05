@@ -3,7 +3,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
-import { toPng } from 'html-to-image';
+import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 import ReceiptCard from '../components/ReceiptCard';
 
@@ -54,11 +54,13 @@ export default function AdminDashboard() {
     if (printingReceipt && hiddenReceiptRef.current) {
       setTimeout(async () => {
         try {
-          const imgData = await toPng(hiddenReceiptRef.current, {
-            pixelRatio: 2,
-            backgroundColor: '#ffffff',
-            style: { transform: 'none' }
+          const canvas = await html2canvas(hiddenReceiptRef.current, {
+            scale: 2,
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: '#ffffff'
           });
+          const imgData = canvas.toDataURL('image/png');
           
           const element = hiddenReceiptRef.current;
           const width = element.offsetWidth;
