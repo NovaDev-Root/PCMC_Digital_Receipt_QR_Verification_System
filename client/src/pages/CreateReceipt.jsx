@@ -14,7 +14,12 @@ const formatDate = (d) => {
   return `${day}/${m}/${y}`;
 };
 
-// Bill number is now manual
+// Auto-generate a random bill number
+const generateBillNumber = () => {
+  const year = new Date().getFullYear();
+  const random = Math.floor(10000 + Math.random() * 90000);
+  return `PCMC/${year}/${random}`;
+};
 
 function FormField({ label, marathi, children, centered }) {
   return (
@@ -33,7 +38,7 @@ export default function CreateReceipt() {
   const navigate       = useNavigate();
 
   const [form, setForm] = useState({
-    billNumber:     '',
+    billNumber:     generateBillNumber(),
     billDate:       today(),
     validTill:      '',
     holderName:     '',
@@ -166,7 +171,7 @@ export default function CreateReceipt() {
             
             <div className="p-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               <FormField marathi="बील क्रमांक" label="Bill Number">
-                <input name="billNumber" value={form.billNumber} onChange={handleChange} required placeholder="उदा. 3/21/..." className="form-input font-bold" />
+                <input name="billNumber" value={form.billNumber} readOnly className="form-input font-bold bg-slate-100 text-slate-500 cursor-not-allowed" />
               </FormField>
               <FormField marathi="बील दिनांक" label="Date">
                 <input name="billDate" type="date" value={form.billDate} onChange={handleChange} required className="form-input font-bold" />
