@@ -1,6 +1,6 @@
 import React, { forwardRef, useState, useEffect } from 'react';
 
-const ReceiptCard = forwardRef(({ receipt, qrDataURL }, ref) => {
+const ReceiptCard = forwardRef(({ receipt, qrDataURL, signatureDataURL }, ref) => {
   if (!receipt) return null;
 
   // Colors based on the PDF image
@@ -9,9 +9,13 @@ const ReceiptCard = forwardRef(({ receipt, qrDataURL }, ref) => {
   const alertRed = '#c23b3b'; // Red for instructions
   const signatureBlue = '#1e40af'; // Solid blue for the signature text
   const borderColor = '#1e3a8a'; // Black borders
-  const [processedSignature, setProcessedSignature] = useState(null);
+  const [processedSignature, setProcessedSignature] = useState(signatureDataURL || null);
 
   useEffect(() => {
+    if (signatureDataURL) {
+      setProcessedSignature(signatureDataURL);
+      return;
+    }
     let isMounted = true;
     const processSignature = () => {
       const img = new Image();
@@ -78,13 +82,16 @@ const ReceiptCard = forwardRef(({ receipt, qrDataURL }, ref) => {
       style={{
         width: '210mm',
         minHeight: '297mm',
-        margin: 4,
+        margin: 0,
         padding: 12,
+        boxShadow: 'none',
         fontFamily: "'Noto Sans Devanagari', sans-serif",
         color: '#000',
         lineHeight: '1.4',
         boxSizing: 'border-box',
-        backgroundColor: '#fff'
+        backgroundColor: '#fff',
+        border: 'none',
+        outline: 'none'
       }}
     >
       {/* Watermark Emblem */}

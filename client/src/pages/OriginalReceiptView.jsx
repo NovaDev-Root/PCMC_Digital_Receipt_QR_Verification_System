@@ -14,8 +14,36 @@ export default function OriginalReceiptView() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [blackQr, setBlackQr] = useState(null);
+  const [signatureDataURL, setSignatureDataURL] = useState(null);
   const receiptRef = useRef(null);
   const [downloading, setDownloading] = useState(false);
+
+  useEffect(() => {
+    // Process signature
+    const sigImg = new Image();
+    sigImg.crossOrigin = "anonymous";
+    sigImg.src = window.location.origin + "/signature.png";
+    sigImg.onload = () => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = sigImg.width;
+      canvas.height = sigImg.height;
+      ctx.drawImage(sigImg, 0, 0);
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imageData.data;
+      const targetR = 30, targetG = 64, targetB = 175;
+      for (let i = 0; i < data.length; i += 4) {
+        if (data[i] > 160 && data[i + 1] > 160 && data[i + 2] > 160) {
+          data[i + 3] = 0;
+        } else {
+          data[i] = targetR; data[i + 1] = targetG; data[i + 2] = targetB;
+          data[i + 3] = Math.min(255, data[i + 3] * 1.5);
+        }
+      }
+      ctx.putImageData(imageData, 0, 0);
+      setSignatureDataURL(canvas.toDataURL('image/png'));
+    };
+  }, []);
 
   const handleDownload = async () => {
     if (!receiptRef.current) return;
@@ -41,9 +69,11 @@ export default function OriginalReceiptView() {
       });
       
       const pdfWidth = 210;
-      const pdfHeight = (element.offsetHeight * pdfWidth) / element.offsetWidth;
+      const margin = 10; // 10mm margin
+      const imgWidth = pdfWidth - (margin * 2);
+      const imgHeight = (element.offsetHeight * imgWidth) / element.offsetWidth;
       
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.addImage(imgData, 'PNG', margin, margin, imgWidth, imgHeight);
       pdf.save(`PCMC_Official_Bill_${receipt.billNumber}.pdf`);
     } catch (err) {
       console.error('Error generating PDF:', err);
@@ -130,7 +160,11 @@ export default function OriginalReceiptView() {
         </button>
       </div>
       <div className="bg-white shadow-xl overflow-x-auto w-full max-w-[210mm]" ref={receiptRef}>
-        <ReceiptCard receipt={receipt} qrDataURL={blackQr || receipt.qrCodeDataURL} />
+        <ReceiptCard 
+          receipt={receipt} 
+          qrDataURL={blackQr || receipt.qrCodeDataURL} 
+          signatureDataURL={signatureDataURL}
+        />
       </div>
     </div>
   );
