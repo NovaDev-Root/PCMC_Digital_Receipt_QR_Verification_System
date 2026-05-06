@@ -1,6 +1,5 @@
-// src/pages/CreateReceipt.jsx
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import QRDisplay from '../components/QRDisplay';
@@ -12,6 +11,14 @@ const formatDate = (d) => {
   if (!d) return '';
   const [y, m, day] = d.split('-');
   return `${day}/${m}/${y}`;
+};
+
+// Helper to convert DD/MM/YYYY back to YYYY-MM-DD for date inputs
+const parseDate = (d) => {
+  if (!d) return '';
+  const parts = d.split('/');
+  if (parts.length !== 3) return '';
+  return `${parts[2]}-${parts[1]}-${parts[0]}`;
 };
 
 // Auto-generate a random bill number in format 3/21/YYYYYYYY/XXXXX
@@ -41,6 +48,8 @@ function FormField({ label, marathi, children, centered }) {
 export default function CreateReceipt() {
   const { getIdToken } = useAuth();
   const navigate       = useNavigate();
+  const { receiptId }  = useParams();
+  const isEdit         = !!receiptId;
 
   const [form, setForm] = useState({
     billNumber:     generateBillNumber(),
@@ -60,8 +69,44 @@ export default function CreateReceipt() {
   });
 
   const [loading, setLoading]       = useState(false);
+  const [fetching, setFetching]     = useState(isEdit);
   const [error, setError]           = useState('');
   const [submitted, setSubmitted]   = useState(null);
+
+  // Fetch receipt if editing
+  useEffect(() => {
+    if (isEdit) {
+      async function fetchReceipt() {
+        try {
+          const res = await axios.get(`${API_URL}/api/receipt/${receiptId}`);
+          const r = res.data.receipt;
+          
+          setForm({
+            billNumber:     r.billNumber,
+            billDate:       parseDate(r.billDate),
+            validTill:      parseDate(r.validTill),
+            holderName:     r.holderName,
+            address:        r.address,
+            area:           r.area,
+            landType:       ['Khajagi', 'Sarkari', 'Municipal'].includes(r.landType) ? r.landType : 'Other',
+            customLandType: ['Khajagi', 'Sarkari', 'Municipal'].includes(r.landType) ? '' : r.landType,
+            department:     r.department,
+            jhopadiNumber:  r.jhopadiNumber,
+            areaSquareFeet: r.areaSquareFeet,
+            demandFrom:     parseDate(r.demandFrom),
+            pendingAmount:  r.pendingAmount,
+            currentDemand:  r.currentDemand,
+          });
+        } catch (err) {
+          console.error('Error fetching receipt:', err);
+          setError('Failed to load receipt data.');
+        } finally {
+          setFetching(false);
+        }
+      }
+      fetchReceipt();
+    }
+  }, [isEdit, receiptId]);
 
   // Ping the backend to wake up Render free tier on component mount
   useEffect(() => {
@@ -90,11 +135,18 @@ export default function CreateReceipt() {
         demandFrom: formatDate(form.demandFrom),
       };
 
-      const res = await axios.post(`${API_URL}/api/receipt/create`, payload, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      setSubmitted(res.data);
+      if (isEdit) {
+        await axios.put(`${API_URL}/api/receipt/${receiptId}`, payload, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        alert('Receipt updated successfully!');
+        navigate('/admin/dashboard');
+      } else {
+        const res = await axios.post(`${API_URL}/api/receipt/create`, payload, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setSubmitted(res.data);
+      }
     } catch (err) {
       if (err.message === 'Network Error' || err.code === 'ECONNABORTED' || err.message.toLowerCase().includes('time out') || err.message.toLowerCase().includes('timeout')) {
         setError('The server is waking up or timed out. Please wait a minute and try submitting again.');
@@ -105,6 +157,14 @@ export default function CreateReceipt() {
       setLoading(false);
     }
   };
+
+  if (fetching) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   if (submitted) {
     return (
@@ -161,9 +221,9 @@ export default function CreateReceipt() {
             <span className="text-[10px] font-bold uppercase tracking-widest">Official PCMC Billing Portal</span>
           </div>
           <h1 className="text-4xl md:text-5xl font-bold text-slate-900 devanagari leading-tight">
-            नवीन सेवा शुल्क बील
+            {isEdit ? 'बील संपादित करा' : 'नवीन सेवा शुल्क बील'}
           </h1>
-          <p className="text-slate-500 font-bold text-sm mt-2 uppercase tracking-widest">Jhopadpatti Nirmulan Vibhag</p>
+          <p className="text-slate-500 font-bold text-sm mt-2 uppercase tracking-widest">{isEdit ? 'Edit Receipt' : 'Jhopadpatti Nirmulan Vibhag'}</p>
         </div>
 
         {error && (
@@ -293,7 +353,7 @@ export default function CreateReceipt() {
                 </>
               ) : (
                 <>
-                  पावती तयार करा (Generate Receipt)
+                  {isEdit ? 'माहिती जतन करा (Update Receipt)' : 'पावती तयार करा (Generate Receipt)'}
                 </>
               )}
             </button>

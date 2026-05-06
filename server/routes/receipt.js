@@ -116,7 +116,66 @@ router.post('/create', verifyToken, async (req, res) => {
   }
 });
 
+
+// ─── PUT /api/receipt/:receiptId ──────────────────────────────────────────
+router.put('/:receiptId', verifyToken, async (req, res) => {
+  try {
+    const { receiptId } = req.params;
+    const {
+      billNumber,
+      billDate,
+      validTill,
+      holderName,
+      address,
+      area,
+      landType,
+      department,
+      jhopadiNumber,
+      areaSquareFeet,
+      demandFrom,
+      pendingAmount,
+      currentDemand,
+    } = req.body;
+
+    if (!holderName || !billDate) {
+      return res.status(400).json({ error: 'holderName and billDate are required' });
+    }
+
+    const totalAmount = (Number(pendingAmount) || 0) + (Number(currentDemand) || 0);
+
+    const updateData = {
+      billNumber,
+      billDate,
+      validTill: validTill || '',
+      holderName,
+      address: address || '',
+      area: area || '',
+      landType: landType || 'Khajagi',
+      department: department || '-',
+      jhopadiNumber: jhopadiNumber || '',
+      areaSquareFeet: areaSquareFeet || '',
+      demandFrom: demandFrom || '',
+      pendingAmount: Number(pendingAmount) || 0,
+      currentDemand: Number(currentDemand) || 0,
+      totalAmount,
+      updatedAt: new Date().toISOString(),
+    };
+
+    await getDb().collection('receipts').doc(receiptId).update(updateData);
+
+    res.json({
+      success: true,
+      receiptId,
+      updateData,
+    });
+  } catch (err) {
+    console.error('Update receipt error:', err);
+    res.status(500).json({ error: err.message || 'Failed to update receipt' });
+  }
+});
+
 // ─── DELETE /api/receipt/:receiptId ──────────────────────────────────────────
+
 router.delete('/:receiptId', verifyToken, async (req, res) => {
   try {
     const { receiptId } = req.params;

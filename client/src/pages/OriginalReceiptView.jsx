@@ -30,16 +30,16 @@ export default function OriginalReceiptView() {
         style: { backgroundColor: '#ffffff' }
       });
       
-      const width = element.offsetWidth;
-      const height = element.offsetHeight;
-      
       const pdf = new jsPDF({
-        orientation: width > height ? 'l' : 'p',
-        unit: 'px',
-        format: [width, height]
+        orientation: 'p',
+        unit: 'mm',
+        format: 'a4'
       });
       
-      pdf.addImage(imgData, 'PNG', 0, 0, width, height);
+      const pdfWidth = 210;
+      const pdfHeight = (element.offsetHeight * pdfWidth) / element.offsetWidth;
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
       pdf.save(`PCMC_Official_Bill_${receipt.billNumber}.pdf`);
     } catch (err) {
       console.error('Error generating PDF:', err);

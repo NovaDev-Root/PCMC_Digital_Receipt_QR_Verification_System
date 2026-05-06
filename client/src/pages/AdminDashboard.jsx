@@ -62,21 +62,20 @@ export default function AdminDashboard() {
             pixelRatio: 3, 
             style: { 
               backgroundColor: '#ffffff',
-              margin: '0',
-              padding: '0'
             }
           });
           
-          const width = element.offsetWidth;
-          const height = element.offsetHeight;
-          
           const pdf = new jsPDF({
-            orientation: width > height ? 'l' : 'p',
-            unit: 'px',
-            format: [width, height]
+            orientation: 'p',
+            unit: 'mm',
+            format: 'a4'
           });
           
-          pdf.addImage(imgData, 'PNG', 0, 0, width, height);
+          // A4 dimensions in mm: 210 x 297
+          const pdfWidth = 210;
+          const pdfHeight = (element.offsetHeight * pdfWidth) / element.offsetWidth;
+          
+          pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
           pdf.save(`PCMC_Official_Bill_${printingReceipt.billNumber}.pdf`);
         } catch (err) {
           console.error('Error generating PDF:', err);
@@ -240,6 +239,12 @@ export default function AdminDashboard() {
                           Print
                         </button>
                         <Link
+                          to={`/admin/edit/${receipt.receiptId}`}
+                          className="px-4 py-2 bg-white text-amber-700 hover:bg-amber-50 transition-colors border border-amber-400 text-xs font-semibold"
+                        >
+                          Edit
+                        </Link>
+                        <Link
                           to={`/view-receipt/${receipt.receiptId}`}
                           target="_blank"
                           className="px-4 py-2 bg-white text-blue-700 hover:bg-blue-50 transition-colors border border-blue-400 text-xs font-semibold"
@@ -265,16 +270,14 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Hidden Receipt for PDF Generation - Exact Match for View Page */}
+      {/* Hidden Receipt for PDF Generation - capturing exact A4 width */}
       {printingReceipt && (
-        <div className="fixed top-0 left-[-9999px] bg-slate-50 py-8 flex flex-col items-center overflow-visible">
-          <div className="bg-white shadow-xl w-full max-w-[210mm]">
-            <ReceiptCard 
-              receipt={printingReceipt} 
-              qrDataURL={printingReceipt.qrCodeDataURL} 
-              ref={hiddenReceiptRef} 
-            />
-          </div>
+        <div className="fixed top-0 left-[-9999px] overflow-visible">
+          <ReceiptCard 
+            receipt={printingReceipt} 
+            qrDataURL={printingReceipt.qrCodeDataURL} 
+            ref={hiddenReceiptRef} 
+          />
         </div>
       )}
 

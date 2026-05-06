@@ -40,6 +40,14 @@ export default function App() {
               </PrivateRoute>
             }
           />
+          <Route
+            path="/admin/edit/:receiptId"
+            element={
+              <PrivateRoute>
+                <CreateReceipt />
+              </PrivateRoute>
+            }
+          />
 
           {/* Redirects */}
           <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />

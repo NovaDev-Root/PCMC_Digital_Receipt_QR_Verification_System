@@ -1,4 +1,4 @@
-import React, { forwardRef } from 'react';
+import React, { forwardRef, useState, useEffect } from 'react';
 
 const ReceiptCard = forwardRef(({ receipt, qrDataURL }, ref) => {
   if (!receipt) return null;
@@ -7,8 +7,54 @@ const ReceiptCard = forwardRef(({ receipt, qrDataURL }, ref) => {
   const primaryBlue = '#1e3a8a'; // Dark blue for headers and lines
   const textBlue = '#1e3a8a'; // Dark blue for general text
   const alertRed = '#c23b3b'; // Red for instructions
-  const signatureBlue = '#4066abff'; // Original medium blue for the signature
+  const signatureBlue = '#1e40af'; // Solid blue for the signature text
   const borderColor = '#1e3a8a'; // Black borders
+  const [processedSignature, setProcessedSignature] = useState(null);
+
+  useEffect(() => {
+    const processSignature = () => {
+      const img = new Image();
+      img.crossOrigin = "Anonymous";
+      img.src = "/signature.png";
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+        
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imageData.data;
+        
+        // Target blue color components for #1e40af
+        const targetR = 30;
+        const targetG = 64;
+        const targetB = 175;
+
+        for (let i = 0; i < data.length; i += 4) {
+          const r = data[i];
+          const g = data[i + 1];
+          const b = data[i + 2];
+          
+          // If pixel is light (background), make it transparent
+          if (r > 160 && g > 160 && b > 160) {
+            data[i + 3] = 0;
+          } else {
+            // If pixel is dark (signature ink), color it blue
+            data[i] = targetR;
+            data[i + 1] = targetG;
+            data[i + 2] = targetB;
+            // Slightly boost alpha for clearer signature
+            data[i + 3] = Math.min(255, data[i + 3] * 1.2);
+          }
+        }
+        
+        ctx.putImageData(imageData, 0, 0);
+        setProcessedSignature(canvas.toDataURL());
+      };
+    };
+    processSignature();
+  }, []);
 
   return (
     <div
@@ -107,7 +153,12 @@ const ReceiptCard = forwardRef(({ receipt, qrDataURL }, ref) => {
         <div className="flex justify-end mb-0 px-4 mt-2 mb-1">
           <div className="text-center relative">
             <div className="relative z-10 p-0" style={{ color: signatureBlue }}>
-              <img src="/signature.png" alt="Signature" className="h-16 mx-auto mb-0.5 opacity-90" />
+              <img 
+                src={processedSignature || "/signature.png"} 
+                alt="Signature" 
+                className="h-16 mx-auto mb-0.5" 
+                style={!processedSignature ? { filter: 'brightness(0.8) sepia(1) hue-rotate(190deg) saturate(1000%)', mixBlendMode: 'multiply' } : {}} 
+              />
               <p className="text-[10px] font-bold devanagari leading-tight">
                 सक्षम प्राधिकरण संस्था सहा. आयुक्त<br />
                 झोपडपट्टी निर्मूलन व पुनर्वसन विभाग<br />
