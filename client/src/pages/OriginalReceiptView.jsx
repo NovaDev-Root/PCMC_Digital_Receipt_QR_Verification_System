@@ -24,9 +24,13 @@ export default function OriginalReceiptView() {
       const element = receiptRef.current.querySelector('.receipt-card');
       if (!element) throw new Error('Receipt element not found');
       
+      // Slight delay to ensure images (like signature) are rendered
+      await new Promise(r => setTimeout(r, 500));
+
       const imgData = await toPng(element, { 
         quality: 1, 
         pixelRatio: 3, 
+        cacheBust: true,
         style: { backgroundColor: '#ffffff' }
       });
       

@@ -60,6 +60,7 @@ export default function AdminDashboard() {
           const imgData = await toPng(element, { 
             quality: 1, 
             pixelRatio: 3, 
+            cacheBust: true,
             style: { 
               backgroundColor: '#ffffff',
             }
@@ -83,7 +84,7 @@ export default function AdminDashboard() {
         } finally {
           setPrintingReceipt(null);
         }
-      }, 300);
+      }, 1000);
     }
   }, [printingReceipt]);
 

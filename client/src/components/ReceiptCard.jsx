@@ -12,48 +12,62 @@ const ReceiptCard = forwardRef(({ receipt, qrDataURL }, ref) => {
   const [processedSignature, setProcessedSignature] = useState(null);
 
   useEffect(() => {
+    let isMounted = true;
     const processSignature = () => {
       const img = new Image();
-      img.crossOrigin = "Anonymous";
-      img.src = "/signature.png";
+      img.crossOrigin = "anonymous";
+      // Use absolute path to avoid any resolution issues
+      img.src = window.location.origin + "/signature.png";
+      
       img.onload = () => {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.drawImage(img, 0, 0);
-        
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const data = imageData.data;
-        
-        // Target blue color components for #1e40af
-        const targetR = 30;
-        const targetG = 64;
-        const targetB = 175;
-
-        for (let i = 0; i < data.length; i += 4) {
-          const r = data[i];
-          const g = data[i + 1];
-          const b = data[i + 2];
+        if (!isMounted) return;
+        try {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          ctx.drawImage(img, 0, 0);
           
-          // If pixel is light (background), make it transparent
-          if (r > 160 && g > 160 && b > 160) {
-            data[i + 3] = 0;
-          } else {
-            // If pixel is dark (signature ink), color it blue
-            data[i] = targetR;
-            data[i + 1] = targetG;
-            data[i + 2] = targetB;
-            // Slightly boost alpha for clearer signature
-            data[i + 3] = Math.min(255, data[i + 3] * 1.2);
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const data = imageData.data;
+          
+          // Target blue color components for #1e40af
+          const targetR = 30;
+          const targetG = 64;
+          const targetB = 175;
+
+          for (let i = 0; i < data.length; i += 4) {
+            const r = data[i];
+            const g = data[i + 1];
+            const b = data[i + 2];
+            
+            // If pixel is light (background), make it transparent
+            if (r > 160 && g > 160 && b > 160) {
+              data[i + 3] = 0;
+            } else {
+              // If pixel is dark (signature ink), color it blue
+              data[i] = targetR;
+              data[i + 1] = targetG;
+              data[i + 2] = targetB;
+              // Slightly boost alpha for clearer signature
+              data[i + 3] = Math.min(255, data[i + 3] * 1.5);
+            }
           }
+          
+          ctx.putImageData(imageData, 0, 0);
+          setProcessedSignature(canvas.toDataURL('image/png'));
+        } catch (err) {
+          console.error("Signature processing failed:", err);
+          // Fallback to original image if processing fails
+          setProcessedSignature(img.src);
         }
-        
-        ctx.putImageData(imageData, 0, 0);
-        setProcessedSignature(canvas.toDataURL());
+      };
+      img.onerror = () => {
+        console.error("Failed to load signature image from:", img.src);
       };
     };
     processSignature();
+    return () => { isMounted = false; };
   }, []);
 
   return (
