@@ -13,37 +13,9 @@ export default function AdminDashboard() {
   const { user: currentUser } = useAuth();
 
   const [printingReceipt, setPrintingReceipt] = useState(null);
-  const [globalSignature, setGlobalSignature] = useState(null);
   const hiddenReceiptRef = useRef(null);
 
   const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001';
-
-  // Pre-process signature once for the entire dashboard session
-  useEffect(() => {
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.src = window.location.origin + "/signature.png";
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      canvas.width = img.width;
-      canvas.height = img.height;
-      ctx.drawImage(img, 0, 0);
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const data = imageData.data;
-      const targetR = 30, targetG = 64, targetB = 175;
-      for (let i = 0; i < data.length; i += 4) {
-        if (data[i] > 160 && data[i + 1] > 160 && data[i + 2] > 160) {
-          data[i + 3] = 0;
-        } else {
-          data[i] = targetR; data[i + 1] = targetG; data[i + 2] = targetB;
-          data[i + 3] = Math.min(255, data[i + 3] * 1.5);
-        }
-      }
-      ctx.putImageData(imageData, 0, 0);
-      setGlobalSignature(canvas.toDataURL('image/png'));
-    };
-  }, []);
 
   useEffect(() => {
     async function fetchReceipts() {
@@ -85,27 +57,29 @@ export default function AdminDashboard() {
           const element = hiddenReceiptRef.current;
           if (!element) return;
 
-          const imgData = await toPng(element, { 
-            quality: 1, 
-            pixelRatio: 3, 
-            cacheBust: true,
-            style: { 
+          // Double-call workaround for html-to-image data URL issues
+          await toPng(element, { quality: 1, pixelRatio: 3 });
+          const imgData = await toPng(element, {
+            quality: 1,
+            pixelRatio: 3,
+            fontEmbedCSS: true,
+            style: {
               backgroundColor: '#ffffff',
             }
           });
-          
+
           const pdf = new jsPDF({
             orientation: 'p',
             unit: 'mm',
             format: 'a4'
           });
-          
+
           // A4 dimensions in mm: 210 x 297
           const pdfWidth = 210;
           const margin = 10; // 10mm margin
           const imgWidth = pdfWidth - (margin * 2);
           const imgHeight = (element.offsetHeight * imgWidth) / element.offsetWidth;
-          
+
           pdf.addImage(imgData, 'PNG', margin, margin, imgWidth, imgHeight);
           pdf.save(`PCMC_Official_Bill_${printingReceipt.billNumber}.pdf`);
         } catch (err) {
@@ -134,10 +108,10 @@ export default function AdminDashboard() {
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       const data = imageData.data;
       for (let i = 0; i < data.length; i += 4) {
-        if (data[i] < 200 || data[i+1] < 200 || data[i+2] < 200) {
-           data[i] = 0;
-           data[i+1] = 0;
-           data[i+2] = 0;
+        if (data[i] < 200 || data[i + 1] < 200 || data[i + 2] < 200) {
+          data[i] = 0;
+          data[i + 1] = 0;
+          data[i + 2] = 0;
         }
       }
       ctx.putImageData(imageData, 0, 0);
@@ -303,12 +277,19 @@ export default function AdminDashboard() {
 
       {/* Hidden Receipt for PDF Generation - capturing exact A4 width */}
       {printingReceipt && (
-        <div className="fixed top-0 left-[-9999px] overflow-visible bg-white shadow-none border-none">
-          <ReceiptCard 
-            receipt={printingReceipt} 
-            qrDataURL={printingReceipt.qrCodeDataURL} 
-            signatureDataURL={globalSignature}
-            ref={hiddenReceiptRef} 
+        <div style={{ 
+          position: 'fixed', 
+          top: 0, 
+          left: 0, 
+          width: '210mm', 
+          zIndex: -50, 
+          opacity: 0, 
+          pointerEvents: 'none' 
+        }}>
+          <ReceiptCard
+            receipt={printingReceipt}
+            qrDataURL={printingReceipt.qrCodeDataURL}
+            ref={hiddenReceiptRef}
           />
         </div>
       )}

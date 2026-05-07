@@ -1,84 +1,20 @@
-import React, { forwardRef, useState, useEffect } from 'react';
+import React, { forwardRef } from 'react';
+import { signatureDataUrl } from '../assets/signatureData.js';
 
-const ReceiptCard = forwardRef(({ receipt, qrDataURL, signatureDataURL }, ref) => {
+const ReceiptCard = forwardRef(({ receipt, qrDataURL }, ref) => {
   if (!receipt) return null;
 
-  // Colors based on the PDF image
-  const primaryBlue = '#1e3a8a'; // Dark blue for headers and lines
-  const textBlue = '#1e3a8a'; // Dark blue for general text
-  const alertRed = '#c23b3b'; // Red for instructions
-  const signatureBlue = '#1e40af'; // Solid blue for the signature text
-  const borderColor = '#1e3a8a'; // Black borders
-  const [processedSignature, setProcessedSignature] = useState(signatureDataURL || null);
-
-  useEffect(() => {
-    if (signatureDataURL) {
-      setProcessedSignature(signatureDataURL);
-      return;
-    }
-    let isMounted = true;
-    const processSignature = () => {
-      const img = new Image();
-      img.crossOrigin = "anonymous";
-      // Use absolute path to avoid any resolution issues
-      img.src = window.location.origin + "/signature.png";
-      
-      img.onload = () => {
-        if (!isMounted) return;
-        try {
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
-          canvas.width = img.width;
-          canvas.height = img.height;
-          ctx.drawImage(img, 0, 0);
-          
-          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-          const data = imageData.data;
-          
-          // Target blue color components for #1e40af
-          const targetR = 30;
-          const targetG = 64;
-          const targetB = 175;
-
-          for (let i = 0; i < data.length; i += 4) {
-            const r = data[i];
-            const g = data[i + 1];
-            const b = data[i + 2];
-            
-            // If pixel is light (background), make it transparent
-            if (r > 160 && g > 160 && b > 160) {
-              data[i + 3] = 0;
-            } else {
-              // If pixel is dark (signature ink), color it blue
-              data[i] = targetR;
-              data[i + 1] = targetG;
-              data[i + 2] = targetB;
-              // Slightly boost alpha for clearer signature
-              data[i + 3] = Math.min(255, data[i + 3] * 1.5);
-            }
-          }
-          
-          ctx.putImageData(imageData, 0, 0);
-          setProcessedSignature(canvas.toDataURL('image/png'));
-        } catch (err) {
-          console.error("Signature processing failed:", err);
-          // Fallback to original image if processing fails
-          setProcessedSignature(img.src);
-        }
-      };
-      img.onerror = () => {
-        console.error("Failed to load signature image from:", img.src);
-      };
-    };
-    processSignature();
-    return () => { isMounted = false; };
-  }, []);
+  const primaryBlue = '#1e3a8a';
+  const textBlue = '#1e3a8a';
+  const alertRed = '#c23b3b';
+  const signatureBlue = '#1e40af';
+  const borderColor = '#1e3a8a';
 
   return (
     <div
       ref={ref}
       id="receipt-card"
-      className="receipt-card bg-white relative overflow-hidden"
+      className="receipt-card bg-white relative overflow-visible"
       style={{
         width: '210mm',
         minHeight: '297mm',
@@ -173,14 +109,15 @@ const ReceiptCard = forwardRef(({ receipt, qrDataURL, signatureDataURL }, ref) =
         {/* ── Signature Section ── */}
         <div className="flex justify-end mb-0 px-4 mt-2 mb-1">
           <div className="text-center relative">
-            <div className="relative z-10 p-0" style={{ color: signatureBlue }}>
-              <img 
-                src={processedSignature || "/signature.png"} 
-                alt="Signature" 
-                className="h-16 mx-auto mb-0.5" 
-                style={!processedSignature ? { filter: 'brightness(0.8) sepia(1) hue-rotate(190deg) saturate(1000%)', mixBlendMode: 'multiply' } : {}} 
+            <div className="relative z-10 p-0">
+              {/* Using a direct base64 data URL to ensure it is always captured in the PDF without network issues */}
+              <img
+                src={signatureDataUrl}
+                alt="Signature"
+                className="w-32 h-auto mx-auto block mb-0.5"
+                onLoad={(e) => e.target.setAttribute('data-loaded', 'true')}
               />
-              <p className="text-[10px] font-bold devanagari leading-tight">
+              <p className="text-[10px] font-bold devanagari leading-tight text-[#1e40af]">
                 सक्षम प्राधिकरण संस्था सहा. आयुक्त<br />
                 झोपडपट्टी निर्मूलन व पुनर्वसन विभाग<br />
                 पिंपरी चिंचवड महानगरपालिका, पिंपरी १८
@@ -192,7 +129,6 @@ const ReceiptCard = forwardRef(({ receipt, qrDataURL, signatureDataURL }, ref) =
         {/* ── Instructions ── */}
         <div className="relative flex items-center justify-center mb-0.5">
           <div className="absolute w-full border-t-2 border-dashed" style={{ borderColor: borderColor }}></div>
-
         </div>
 
         <ol className="text-[10px] devanagari mb-4 mt-1 list-none font-bold leading-snug" style={{ color: alertRed }}>

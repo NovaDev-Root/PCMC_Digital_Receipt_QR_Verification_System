@@ -1,10 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import ReceiptCard from '../components/ReceiptCard';
 import { toPng } from 'html-to-image';
 import { jsPDF } from 'jspdf';
-import { useRef } from 'react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001';
 
@@ -14,36 +13,8 @@ export default function OriginalReceiptView() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [blackQr, setBlackQr] = useState(null);
-  const [signatureDataURL, setSignatureDataURL] = useState(null);
   const receiptRef = useRef(null);
   const [downloading, setDownloading] = useState(false);
-
-  useEffect(() => {
-    // Process signature
-    const sigImg = new Image();
-    sigImg.crossOrigin = "anonymous";
-    sigImg.src = window.location.origin + "/signature.png";
-    sigImg.onload = () => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      canvas.width = sigImg.width;
-      canvas.height = sigImg.height;
-      ctx.drawImage(sigImg, 0, 0);
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const data = imageData.data;
-      const targetR = 30, targetG = 64, targetB = 175;
-      for (let i = 0; i < data.length; i += 4) {
-        if (data[i] > 160 && data[i + 1] > 160 && data[i + 2] > 160) {
-          data[i + 3] = 0;
-        } else {
-          data[i] = targetR; data[i + 1] = targetG; data[i + 2] = targetB;
-          data[i + 3] = Math.min(255, data[i + 3] * 1.5);
-        }
-      }
-      ctx.putImageData(imageData, 0, 0);
-      setSignatureDataURL(canvas.toDataURL('image/png'));
-    };
-  }, []);
 
   const handleDownload = async () => {
     if (!receiptRef.current) return;
@@ -51,28 +22,30 @@ export default function OriginalReceiptView() {
     try {
       const element = receiptRef.current.querySelector('.receipt-card');
       if (!element) throw new Error('Receipt element not found');
-      
-      // Slight delay to ensure images (like signature) are rendered
-      await new Promise(r => setTimeout(r, 500));
 
-      const imgData = await toPng(element, { 
-        quality: 1, 
-        pixelRatio: 3, 
-        cacheBust: true,
+      // Short delay to ensure all images are rendered in the DOM
+      await new Promise(r => setTimeout(r, 300));
+
+      // Double-call workaround for html-to-image data URL issues
+      await toPng(element, { quality: 1, pixelRatio: 3 });
+      const imgData = await toPng(element, {
+        quality: 1,
+        pixelRatio: 3,
+        fontEmbedCSS: true,
         style: { backgroundColor: '#ffffff' }
       });
-      
+
       const pdf = new jsPDF({
         orientation: 'p',
         unit: 'mm',
         format: 'a4'
       });
-      
+
       const pdfWidth = 210;
       const margin = 10; // 10mm margin
       const imgWidth = pdfWidth - (margin * 2);
       const imgHeight = (element.offsetHeight * imgWidth) / element.offsetWidth;
-      
+
       pdf.addImage(imgData, 'PNG', margin, margin, imgWidth, imgHeight);
       pdf.save(`PCMC_Official_Bill_${receipt.billNumber}.pdf`);
     } catch (err) {
@@ -91,7 +64,7 @@ export default function OriginalReceiptView() {
       try {
         const res = await axios.get(`${API_URL}/api/receipt/${receiptId}`);
         setReceipt(res.data.receipt);
-        
+
         // Convert QR to black if it exists
         if (res.data.receipt?.qrCodeDataURL) {
           const img = new Image();
@@ -105,8 +78,8 @@ export default function OriginalReceiptView() {
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             const data = imageData.data;
             for (let i = 0; i < data.length; i += 4) {
-              if (data[i] < 200 || data[i+1] < 200 || data[i+2] < 200) {
-                 data[i] = 0; data[i+1] = 0; data[i+2] = 0;
+              if (data[i] < 200 || data[i + 1] < 200 || data[i + 2] < 200) {
+                data[i] = 0; data[i + 1] = 0; data[i + 2] = 0;
               }
             }
             ctx.putImageData(imageData, 0, 0);
@@ -145,13 +118,13 @@ export default function OriginalReceiptView() {
   return (
     <div className="min-h-screen bg-slate-50 py-8 flex flex-col items-center">
       <div className="mb-4">
-        <button 
-          onClick={() => window.print()} 
+        <button
+          onClick={() => window.print()}
           className="bg-blue-600 text-white px-6 py-2 rounded font-bold shadow-md print:hidden mr-4"
         >
           Print (Browser)
         </button>
-        <button 
+        <button
           onClick={handleDownload}
           disabled={downloading}
           className="bg-green-600 text-white px-6 py-2 rounded font-bold shadow-md print:hidden disabled:bg-green-400"
@@ -160,10 +133,9 @@ export default function OriginalReceiptView() {
         </button>
       </div>
       <div className="bg-white shadow-xl overflow-x-auto w-full max-w-[210mm]" ref={receiptRef}>
-        <ReceiptCard 
-          receipt={receipt} 
-          qrDataURL={blackQr || receipt.qrCodeDataURL} 
-          signatureDataURL={signatureDataURL}
+        <ReceiptCard
+          receipt={receipt}
+          qrDataURL={blackQr || receipt.qrCodeDataURL}
         />
       </div>
     </div>
